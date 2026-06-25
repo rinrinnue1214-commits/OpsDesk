@@ -1879,7 +1879,9 @@ async function loadEverything(){
   const{data:profileRow}=await sb.from('profiles').select('*').single();
   document.getElementById('profile-name').value=profileRow?.display_name||'';
   if(profileRow?.discord_webhook_url)document.getElementById('collab-discord-url').value=profileRow.discord_webhook_url;
-  const{data:subRow}=await sb.from('subscriptions').select('*').single();
+  const{data:{user}}=await sb.auth.getUser();
+  const{data:subRow,error:subErr}=await sb.from('subscriptions').select('*').eq('user_id',user.id).single();
+  if(subErr)console.warn('subscriptions fetch error:',subErr.message);
   currentPlan=subRow?.plan??'free';applyPlanGating();
   const platH=[...new Set(schedule.map(s=>s.platform).filter(Boolean))];
   document.getElementById('platformHistoryList').innerHTML=platH.map(p=>`<option value="${escapeHtml(p)}">`).join('');
