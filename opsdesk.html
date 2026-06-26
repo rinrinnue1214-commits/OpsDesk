@@ -2776,14 +2776,7 @@ function selectRevCat(btn,cat){
   }
 }
 function updateRevCategoryOtherField(){}
-function selectRevType(type){
-  document.getElementById('rev-type').value=type;
-  document.getElementById('rev-type-income').classList.toggle('act',type==='収入');
-  document.getElementById('rev-type-expense').classList.toggle('act',type==='支出');
-  document.getElementById('rev-category').innerHTML=REV_CATS[type].map(c=>`<option>${c}</option>`).join('');
-  updateRevCategoryOtherField();
-}
-function updateRevCategoryOtherField(){const v=document.getElementById('rev-category').value;document.getElementById('rev-category-other').style.display=(v==='その他収入'||v==='その他経費')?'block':'none';}
+// (旧selectRevType削除済み)
 const PERIOD_LABELS={thisMonth:'今月の収支',lastMonth:'前月の収支',last3months:'直近3ヶ月の収支',thisYear:'今年の収支',all:'全期間の収支'};
 function filterByPeriod(items,period){
   const now=new Date();if(period==='all')return items;
