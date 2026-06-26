@@ -2218,20 +2218,6 @@ function onFab(){
 
 // ── SWIPE ──
 const TAB_ORDER=['home','calendar','collab','deals','activity','revenue','ideas','groups','settings'];
-let swX=null,swY=null;
-document.getElementById('appScreen').addEventListener('touchstart',e=>{
-  if(document.querySelector('.modal-overlay.show')||document.getElementById('datePickerPopover').style.display==='block'){swX=null;return;}
-  const tag=document.activeElement?.tagName;
-  if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'){swX=null;return;}
-  swX=e.touches[0].clientX;swY=e.touches[0].clientY;
-},{passive:true});
-document.getElementById('appScreen').addEventListener('touchend',e=>{
-  if(swX===null)return;
-  const dx=e.changedTouches[0].clientX-swX,dy=e.changedTouches[0].clientY-swY;swX=null;
-  if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5)return;
-  const idx=TAB_ORDER.indexOf(currentTab);if(idx===-1)return;
-  switchTab(TAB_ORDER[dx<0?(idx+1)%TAB_ORDER.length:(idx-1+TAB_ORDER.length)%TAB_ORDER.length]);
-},{passive:true});
 
 // ── AUTH ──
 function switchAuthTab(mode){
@@ -2328,6 +2314,7 @@ let _initRunning=false;
       // セッションがある場合はgetSession()を待たずにinitを実行
       const params=new URLSearchParams(location.search);
       const teamInviteOwner=params.get('team_invite');
+      const groupJoinId=params.get('group_join');
       document.getElementById('authScreen').style.display='none';
       document.getElementById('shareScreen').style.display='none';
       document.getElementById('groupScreen').style.display='none';
@@ -2340,6 +2327,11 @@ let _initRunning=false;
         await init();
         _initDone=true;
         _initRunning=false;
+        if(groupJoinId){
+          await joinGroupFromLink(groupJoinId);
+          const url=new URL(location.href);url.searchParams.delete('group_join');
+          history.replaceState({},'',url.toString());
+        }
         await checkOnboarding();
       }
     }
@@ -2575,11 +2567,17 @@ function renderCharts(){
 function renderHomeActivityStats(){
   const now=new Date();
   const thisMonth=activities.filter(a=>{const d=new Date(a.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
-  const counts={配信:0,動画投稿:0,'ショート/リール':0,コラボ:0};
-  thisMonth.forEach(a=>{if(counts[a.type]!==undefined)counts[a.type]++;});
   const el=document.getElementById('homeActivityStats');if(!el)return;
-  el.innerHTML=[{l:'配信',v:counts['配信'],c:'live'},{l:'動画投稿',v:counts['動画投稿'],c:'gold'},{l:'ショート',v:counts['ショート/リール'],c:'pink'},{l:'コラボ',v:counts['コラボ'],c:'calm'}]
-    .map(i=>`<div class="stat"><div class="num" style="color:var(--${i.c});">${i.v}</div><div class="lbl">${i.l}</div></div>`).join('');
+  if(!thisMonth.length){el.innerHTML='<div class="stat"><div class="num" style="color:var(--dim);">0</div><div class="lbl">今月の実績</div></div>';return;}
+  // 実データから動的集計（固定カテゴリに縛られない）
+  const typeCounts={};
+  thisMonth.forEach(a=>{typeCounts[a.type]=(typeCounts[a.type]||0)+1;});
+  const colorFor=t=>ACT_COLOR[t]||'gold';
+  el.innerHTML=Object.entries(typeCounts)
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,4) // 最大4つ表示
+    .map(([t,v])=>`<div class="stat"><div class="num" style="color:var(--${colorFor(t)});">${v}</div><div class="lbl">${t}</div></div>`)
+    .join('');
 }
 function renderBurnout(){
   const el=document.getElementById('burnoutContent');if(!el)return;
@@ -2884,8 +2882,9 @@ async function saveRevenueEdit(id){
   const category=document.getElementById('rev-edit-category-'+id).value.trim();
   const platform=document.getElementById('rev-edit-platform-'+id).value.trim();
   const memo=document.getElementById('rev-edit-memo-'+id)?.value.trim()||'';
-  if(!amount)return;
-  await sb.from('revenue_items').update({amount,category,platform,memo:memo||null}).eq('id',id);
+  if(!amount){showError('金額を入力してください');return;}
+  const{error}=await sb.from('revenue_items').update({amount,category,platform,memo:memo||null}).eq('id',id);
+  if(error){showError('更新に失敗しました: '+translateError(error.message));return;}
   editingRevenueId=null;await loadEverything();renderRevenue();renderGoals();renderCharts();showToast('更新しました');
 }
 async function addRevenue(){
@@ -2911,8 +2910,10 @@ async function addRevenue(){
 function downloadCSV(csv,filename){const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
 function exportRevenueCSV(){
   if(!revenue.length){showError('まだ収支データがありません');return;}
-  // スタンダードは直近3ヶ月まで、プロは全期間
   const isPro=currentPlan==='pro';
+  const isPaid=currentPlan==='standard'||currentPlan==='pro';
+  if(!isPaid){showError('収支CSVエクスポートはスタンダード以上のプランでご利用いただけます');return;}
+  // スタンダードは直近3ヶ月まで、プロは全期間
   const exportData=isPro?revenue:filterByPeriod(revenue,'last3months');
   const label=isPro?'全期間':'直近3ヶ月';
   const rows=[['日付','区分','種別','受け取り元・支払先','内訳・メモ','金額']];
@@ -4731,7 +4732,7 @@ async function addGroupTask(){
   const{data:prof}=await sb.from('profiles').select('display_name').eq('id',user.id).single();
   const authorName=prof?.display_name||'自分';
   const{error}=await sb.from('group_tasks').insert({
-    group_id:currentGroupId,owner_id:user.id,user_id:user.id,
+    group_id:currentGroupId,user_id:user.id,
     text,assignee_id:assigneeId||null,assignee_name:assigneeName,
     due_date:dueDate||null,author_name:authorName,done:false
   });
@@ -4769,7 +4770,7 @@ async function inviteGroupMember(){
   const email=document.getElementById('grp-invite-email').value.trim();
   if(!email){showError('メールアドレスを入力してください');return;}
   const{error}=await sb.from('group_members').insert({
-    group_id:currentGroupId,owner_id:user.id,user_id:null,email,role:'member',display_name:email.split('@')[0]
+    group_id:currentGroupId,user_id:null,email,role:'member',display_name:email.split('@')[0]
   });
   if(error){showError('招待に失敗しました: '+translateError(error.message));return;}
   document.getElementById('grp-invite-email').value='';
@@ -4812,7 +4813,7 @@ async function addGroupScheduleItem(title,date,time='',type='打ち合わせ'){
   const{data:{user}}=await sb.auth.getUser();
   const{data:prof}=await sb.from('profiles').select('display_name').eq('id',user.id).single();
   const{error}=await sb.from('group_schedule').insert({
-    group_id:currentGroupId,owner_id:user.id,user_id:null,// null = 全員共有
+    group_id:currentGroupId,user_id:null,// null = 全員共有
     title,date,time:time||null,type,author_name:prof?.display_name||'自分'
   });
   if(error){showError('保存に失敗しました: '+translateError(error.message));return;}
@@ -4827,9 +4828,8 @@ async function joinGroupFromLink(groupId){
   const{data:existing}=await sb.from('group_members').select('id').eq('group_id',groupId).eq('user_id',user.id).single();
   if(existing){showToast('すでにこのグループに参加しています');return;}
   const{data:prof}=await sb.from('profiles').select('display_name').eq('id',user.id).single();
-  const{data:grp}=await sb.from('groups').select('owner_id').eq('id',groupId).single();
   const{error}=await sb.from('group_members').insert({
-    group_id:groupId,owner_id:grp?.owner_id||null,user_id:user.id,email:user.email,
+    group_id:groupId,user_id:user.id,email:user.email,
     role:'member',display_name:prof?.display_name||user.email?.split('@')[0]||'メンバー'
   });
   if(error){showError('参加に失敗しました: '+translateError(error.message));return;}
@@ -5096,6 +5096,7 @@ async function init(){
   renderProgress();renderEvents();renderChecklist();renderScripts();renderProjects();
   checkFirstVisit();
   checkTodayScheduleNotification();
+  setInterval(updateStatus,60000);
 }
 </script>
 </body>
