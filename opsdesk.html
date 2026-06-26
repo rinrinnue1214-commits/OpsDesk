@@ -2122,12 +2122,15 @@ async function extractFunctionError(error){
 
 // ── MODAL ──
 function openModal(id){
-  document.getElementById(id).classList.add('show');
-  // スマホ戻るボタン対策：履歴に追加
-  history.pushState({modal:id},'','');
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.classList.add('show');
+  // スマホ戻るボタン対策：モーダルが1つも開いていない状態からの初回のみpushState
+  const openCount=document.querySelectorAll('.modal-overlay.show').length;
+  if(openCount===1) history.pushState({modal:id},'','');
 }
 function closeModal(id){
-  document.getElementById(id).classList.remove('show');
+  document.getElementById(id)?.classList.remove('show');
 }
 // スマホ戻るボタンが押されたときモーダルを閉じる
 window.addEventListener('popstate',()=>{
@@ -2147,7 +2150,7 @@ function toggleColl(hd,bodyId){
 
 // ── TAB ──
 const PC_ADD_LABELS={
-  home:null, settings:null,
+  home:null, settings:null, announce:null,
   calendar:'＋ 予定を追加',
   collab:'＋ コラボ相手を追加',
   deals:'＋ 案件を追加',
@@ -2155,6 +2158,9 @@ const PC_ADD_LABELS={
   revenue:'＋ 収支を記録',
   ideas:'＋ タスク・ネタを追加',
   groups:'＋ グループを作成',
+  progress:'＋ プロジェクトを追加',
+  events:'＋ 出展を追加',
+  projects:'＋ 企画を追加',
 };
 
 function switchTab(name){
@@ -2170,8 +2176,9 @@ function switchTab(name){
   if(fab) fab.style.display=hasFab?'flex':'none';
   const pcBtn=document.getElementById('pcAddBtn');
   if(pcBtn){
-    const labels=window.dynamicPcLabels||PC_ADD_LABELS;
-    const label=labels[name];
+    // dynamicPcLabels優先、なければPC_ADD_LABELSにフォールバック
+    const labels=Object.assign({},PC_ADD_LABELS,window.dynamicPcLabels||{});
+    const label=labels[name]??null;
     pcBtn.style.display=label?'inline-flex':'none';
     if(label) pcBtn.textContent=label;
   }
@@ -2183,10 +2190,10 @@ function onFab(){
   const map={calendar:'addScheduleModal',collab:'addCollabModal',deals:'addDealModal',activity:'addActivityModal',revenue:'addRevenueModal',ideas:'addIdeaModal',groups:'createGroupModal',progress:'addProgressModal',events:'addEventModal',projects:'addProjectModal'};
   const modal=map[currentTab];
   if(!modal)return;
-  if(currentTab==='calendar'&&!document.getElementById('sch-date').value) document.getElementById('sch-date').value=todayISO();
-  if(currentTab==='activity'&&!document.getElementById('act-date').value) document.getElementById('act-date').value=todayISO();
-  if(currentTab==='revenue'&&!document.getElementById('rev-date').value) document.getElementById('rev-date').value=todayISO();
-  if(currentTab==='revenue') selectRevType('収入');
+  // モーダルを開くたびに日付を今日にリセット
+  if(currentTab==='calendar') document.getElementById('sch-date').value=todayISO();
+  if(currentTab==='activity') document.getElementById('act-date').value=todayISO();
+  if(currentTab==='revenue'){document.getElementById('rev-date').value=todayISO();selectRevType('収入');}
   openModal(modal);
 }
 
