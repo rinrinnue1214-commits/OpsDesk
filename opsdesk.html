@@ -2843,7 +2843,12 @@ async function addRevenue(){
   const memo=document.getElementById('rev-memo').value.trim();
   if(!date||!amount){showError('日付と金額を入力してください');return;}
   const{error}=await sb.from('revenue_items').insert({user_id:user.id,date,amount,platform,category,type,memo:memo||null});
-  if(error){showError('保存に失敗しました: '+translateError(error.message));return;}
+  if(error){
+    if(error.message&&error.message.includes('memo')){
+      const{error:e2}=await sb.from('revenue_items').insert({user_id:user.id,date,amount,platform,category,type});
+      if(e2){showError('保存に失敗しました: '+translateError(e2.message));return;}
+    }else{showError('保存に失敗しました: '+translateError(error.message));return;}
+  }
   ['rev-amount','rev-platform','rev-category-other','rev-memo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   selectRevType(type);
   closeModal('addRevenueModal');await loadEverything();renderRevenue();renderGoals();renderCharts();showToast('記録しました');
@@ -3243,7 +3248,6 @@ function selectActPlatOther(btn){
 }
 async function addActivity(){
   const{data:{user}}=await sb.auth.getUser();
-  // 種類：その他の場合は自由入力から取得
   let type=document.getElementById('act-type').value;
   if(!type){
     const otherTypeVal=document.getElementById('act-type-other')?.value.trim();
@@ -3263,16 +3267,27 @@ async function addActivity(){
   const duration=document.getElementById('act-duration').value||null;
   const earning=document.getElementById('act-earning').value||null;
   if(!date){showError('日付を入力してください');return;}
-  const extra=JSON.stringify({comments,duration,earning});
-  const{error}=await sb.from('activities').insert({user_id:user.id,date,type,platform,title:title||null,views:views||null,memo:extra});
-  if(error){showError('保存に失敗しました: '+translateError(error.message));return;}
+  // memoカラムにJSONで追加情報を保存（カラムがない場合は省略）
+  const insertData={user_id:user.id,date,type,platform,title:title||null,views:views||null};
+  if(comments||duration||earning){
+    insertData.memo=JSON.stringify({comments,duration,earning});
+  }
+  const{error}=await sb.from('activities').insert(insertData);
+  if(error){
+    // memoカラムがない場合はmemoなしで再試行
+    if(error.message&&error.message.includes('memo')){
+      delete insertData.memo;
+      const{error:e2}=await sb.from('activities').insert(insertData);
+      if(e2){showError('保存に失敗しました: '+translateError(e2.message));return;}
+    }else{
+      showError('保存に失敗しました: '+translateError(error.message));return;
+    }
+  }
   ['act-title','act-views','act-comments','act-duration','act-earning'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  // プラットフォームリセット
   const otherPlatInp=document.getElementById('act-platform-other');
   if(otherPlatInp){otherPlatInp.value='';otherPlatInp.style.display='none';}
   document.getElementById('act-platform').value='YouTube';
   document.querySelectorAll('#actPlatChips .chip').forEach((b,i)=>b.classList.toggle('act',i===0));
-  // 種類リセット（配信に戻す）
   const otherTypeInp=document.getElementById('act-type-other');
   if(otherTypeInp){otherTypeInp.value='';otherTypeInp.style.display='none';}
   document.getElementById('act-type').value='配信';
