@@ -1483,14 +1483,20 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="modal-handle"></div>
     <div class="modal-title">実績を記録</div>
     <label>種類</label>
-    <div class="chip-row" id="actTypeChips" style="margin-bottom:4px;">
+    <div class="chip-row" id="actTypeChips" style="flex-wrap:wrap;margin-bottom:4px;">
       <button class="chip act" onclick="selectActType(this,'配信')">配信</button>
       <button class="chip" onclick="selectActType(this,'動画投稿')">動画投稿</button>
       <button class="chip" onclick="selectActType(this,'ショート/リール')">ショート</button>
       <button class="chip" onclick="selectActType(this,'コラボ')">コラボ</button>
       <button class="chip" onclick="selectActType(this,'ライブイベント')">ライブ</button>
+      <button class="chip" onclick="selectActType(this,'イラスト投稿')">イラスト</button>
+      <button class="chip" onclick="selectActType(this,'楽曲リリース')">楽曲</button>
+      <button class="chip" onclick="selectActType(this,'同人誌/BOOTH')">同人/BOOTH</button>
+      <button class="chip" onclick="selectActType(this,'ブログ/note')">ブログ/note</button>
+      <button class="chip" id="actTypeOtherChip" onclick="selectActTypeOther(this)">その他</button>
     </div>
     <input type="hidden" id="act-type" value="配信">
+    <input type="text" id="act-type-other" placeholder="種類を入力（例:朗読配信、ポッドキャスト）" style="display:none;margin-bottom:4px;" oninput="document.getElementById('act-type').value=this.value||'その他'">
     <label>プラットフォーム</label>
     <div class="chip-row" id="actPlatChips" style="margin-bottom:4px;">
       <button class="chip act" onclick="selectActPlat(this,'YouTube')">YouTube</button>
@@ -3156,7 +3162,7 @@ async function deleteItem(type,id){
 }
 
 // ── ACTIVITY ──
-const ACT_COLOR={配信:'live',動画投稿:'gold','ショート/リール':'pink',コラボ:'calm',ライブイベント:'purple',その他:'blue'};
+const ACT_COLOR={配信:'live',動画投稿:'gold','ショート/リール':'pink',コラボ:'calm',ライブイベント:'purple','イラスト投稿':'blue','楽曲リリース':'green','同人誌/BOOTH':'gold','ブログ/note':'calm',その他:'dim'};
 const ACT_PERIOD={thisMonth:'今月の実績',lastMonth:'先月の実績',thisYear:'今年の実績',all:'全期間の実績'};
 function filterActivities(items,period){
   const now=new Date();if(period==='all')return items;
@@ -3170,10 +3176,12 @@ function renderActivity(){
   const pItems=filterActivities(activities,period);
   const sEl=document.getElementById('activityStats');
   if(sEl){
-    const types=['配信','動画投稿','ショート/リール','コラボ','ライブイベント'];const counts={};types.forEach(t=>{counts[t]=pItems.filter(a=>a.type===t).length;});
+    // 実際のデータから種類を動的に集計（固定リストに縛られない）
+    const typeCounts={};
+    pItems.forEach(a=>{typeCounts[a.type]=(typeCounts[a.type]||0)+1;});
     const totalViews=pItems.reduce((s,a)=>s+(Number(a.views)||0),0);
     const totalDuration=pItems.reduce((s,a)=>s+(Number(a.duration)||0),0);
-    sEl.innerHTML=types.filter(t=>counts[t]>0).map(t=>`<div class="stat"><div class="num" style="color:var(--${ACT_COLOR[t]||'gold'});">${counts[t]}</div><div class="lbl">${t}</div></div>`).join('')
+    sEl.innerHTML=Object.entries(typeCounts).map(([t,c])=>`<div class="stat"><div class="num" style="color:var(--${ACT_COLOR[t]||'gold'});">${c}</div><div class="lbl">${t}</div></div>`).join('')
       +(totalViews>0?`<div class="stat"><div class="num">${totalViews.toLocaleString()}</div><div class="lbl">総再生数</div></div>`:'')
       +(totalDuration>0?`<div class="stat"><div class="num">${Math.round(totalDuration/60*10)/10}h</div><div class="lbl">総配信時間</div></div>`:'');
   }
@@ -3199,7 +3207,17 @@ function renderActivity(){
 function toggleActivityShowAll(){activityShowAll=!activityShowAll;renderActivity();}
 function selectActType(btn,type){
   document.querySelectorAll('#actTypeChips .chip').forEach(b=>b.classList.remove('act'));
-  btn.classList.add('act');document.getElementById('act-type').value=type;
+  btn.classList.add('act');
+  document.getElementById('act-type').value=type;
+  const otherInp=document.getElementById('act-type-other');
+  if(otherInp){otherInp.style.display='none';otherInp.value='';}
+}
+function selectActTypeOther(btn){
+  document.querySelectorAll('#actTypeChips .chip').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');
+  document.getElementById('act-type').value='';
+  const otherInp=document.getElementById('act-type-other');
+  if(otherInp){otherInp.style.display='block';setTimeout(()=>otherInp.focus(),0);}
 }
 function selectActPlat(btn,plat){
   document.querySelectorAll('#actPlatChips .chip').forEach(b=>b.classList.remove('act'));
@@ -3218,7 +3236,13 @@ function selectActPlatOther(btn){
 }
 async function addActivity(){
   const{data:{user}}=await sb.auth.getUser();
-  const type=document.getElementById('act-type').value;
+  // 種類：その他の場合は自由入力から取得
+  let type=document.getElementById('act-type').value;
+  if(!type){
+    const otherTypeVal=document.getElementById('act-type-other')?.value.trim();
+    if(!otherTypeVal){showError('種類を入力してください');return;}
+    type=otherTypeVal;
+  }
   let platform=document.getElementById('act-platform').value;
   if(!platform){
     const otherVal=document.getElementById('act-platform-other')?.value.trim();
@@ -3232,15 +3256,20 @@ async function addActivity(){
   const duration=document.getElementById('act-duration').value||null;
   const earning=document.getElementById('act-earning').value||null;
   if(!date){showError('日付を入力してください');return;}
-  // memo列にJSONで追加情報を保存
   const extra=JSON.stringify({comments,duration,earning});
   const{error}=await sb.from('activities').insert({user_id:user.id,date,type,platform,title:title||null,views:views||null,memo:extra});
   if(error){showError('保存に失敗しました: '+translateError(error.message));return;}
   ['act-title','act-views','act-comments','act-duration','act-earning'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  const otherInp=document.getElementById('act-platform-other');
-  if(otherInp){otherInp.value='';otherInp.style.display='none';}
+  // プラットフォームリセット
+  const otherPlatInp=document.getElementById('act-platform-other');
+  if(otherPlatInp){otherPlatInp.value='';otherPlatInp.style.display='none';}
   document.getElementById('act-platform').value='YouTube';
   document.querySelectorAll('#actPlatChips .chip').forEach((b,i)=>b.classList.toggle('act',i===0));
+  // 種類リセット（配信に戻す）
+  const otherTypeInp=document.getElementById('act-type-other');
+  if(otherTypeInp){otherTypeInp.value='';otherTypeInp.style.display='none';}
+  document.getElementById('act-type').value='配信';
+  document.querySelectorAll('#actTypeChips .chip').forEach((b,i)=>b.classList.toggle('act',i===0));
   closeModal('addActivityModal');await loadEverything();renderActivity();renderHomeActivityStats();showToast('実績を記録しました');
 }
 async function deleteActivity(id){if(!confirm('この実績を削除しますか?'))return;await sb.from('activities').delete().eq('id',id);await loadEverything();renderActivity();renderHomeActivityStats();}
