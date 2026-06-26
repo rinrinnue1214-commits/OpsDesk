@@ -2423,7 +2423,7 @@ async function loadEverything(){
   ]);
   schedule=schRows.map(r=>({id:r.id,date:r.date,time:r.time,timeEnd:r.time_end,platform:r.platform,title:r.title,type:r.type,done:r.done,googleEventId:r.google_event_id,note:r.note||''}));
   revenue=revRows.map(r=>({id:r.id,date:r.date,amount:r.amount,platform:r.platform,category:r.category,type:r.type}));
-  ideas=ideaRows.map(r=>({id:r.id,text:r.text,createdAt:new Date(r.created_at).getTime()}));
+  ideas=ideaRows.filter(r=>!r.type||r.type==='idea').map(r=>({id:r.id,text:r.text,createdAt:new Date(r.created_at).getTime()}));
   tasks=taskRows.map(r=>({id:r.id,text:r.text,done:r.done,assigneeId:r.assignee_id||null,dueDate:r.due_date||null,createdAt:new Date(r.created_at).getTime()}));
   deals=dealRows.map(r=>({id:r.id,company:r.company,contact:r.contact,contactInfo:r.contact_info,status:r.status,amount:r.amount,memo:r.memo,deadline:r.deadline,createdAt:new Date(r.created_at).getTime()}));
   activities=actRows.map(r=>{
@@ -4071,7 +4071,7 @@ function applyTabVisibility(){
     btn.style.display=visibleTabs.has(tab)?'':'none';
   });
   // TAB_ORDERを動的に更新
-  const base=['home','calendar','collab','deals','activity','revenue','ideas','progress','events','announce','groups','settings'];
+  const base=['home','calendar','collab','deals','activity','revenue','ideas','projects','progress','events','announce','groups','settings'];
   window.dynamicTabOrder=base.filter(t=>visibleTabs.has(t));
   // PC追加ラベルも更新
   updatePcAddLabels();
