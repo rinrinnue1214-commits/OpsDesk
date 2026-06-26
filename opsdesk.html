@@ -346,7 +346,8 @@ input[type=number]{-moz-appearance:textfield;}
   #topNav{padding:0 20px;max-width:960px;}
   #topNav button{font-size:13px;padding:10px 14px;}
   /* PCではタブを均等に伸ばして全部見せる */
-  #topNav button{flex-shrink:0;flex-grow:1;justify-content:center;}
+  #topNav button{flex-shrink:0;flex-grow:1;justify-content:center;font-size:11px;padding:8px 6px;}
+  #topNav button .ni{font-size:13px;}
   /* PCではFABを非表示、代わりにpcAddBtnを使う */
   .fab{display:none !important;}
   #pcAddBtn{display:inline-flex;align-items:center;gap:5px;}
@@ -587,7 +588,7 @@ input[type=number]{-moz-appearance:textfield;}
     <button class="tab-btn" data-tab="projects" onclick="switchTab('projects')" style="display:none;"><span class="ni">🗂️</span><span class="tab-label" data-key="projects">企画</span></button>
     <button class="tab-btn" data-tab="progress" onclick="switchTab('progress')" style="display:none;"><span class="ni">📐</span><span class="tab-label" data-key="progress">制作進捗</span></button>
     <button class="tab-btn" data-tab="events" onclick="switchTab('events')" style="display:none;"><span class="ni">🎪</span><span class="tab-label" data-key="events">出展管理</span></button>
-    <button class="tab-btn" data-tab="announce" onclick="switchTab('announce')" style="display:none;"><span class="ni">📣</span><span class="tab-label" data-key="announce">告知文</span></button>
+    <button class="tab-btn" data-tab="announce" onclick="switchTab('announce')" style="display:none;"><span class="ni">📋</span><span class="tab-label" data-key="announce">チェック</span></button>
     <button class="tab-btn" data-tab="groups" onclick="switchTab('groups')"><span class="ni">👥</span>グループ</button>
     <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')"><span class="ni">⚙️</span>設定</button>
   </nav>
@@ -901,48 +902,14 @@ input[type=number]{-moz-appearance:textfield;}
   </div>
 </div>
 
-<!-- ANNOUNCE（告知文生成） -->
+<!-- ANNOUNCE（配信前チェックリスト） -->
 <div class="panel" id="panel-announce">
-  <div class="page-header"><div class="page-title">告知文生成</div></div>
-  <div class="gated" id="announceGated">
-    <div class="card">
-      <div class="card-hd">告知文をAIで生成</div>
-      <p class="hint" style="margin-top:-4px;">配信・投稿・イベントの告知文を自動生成します。</p>
-      <label>活動の種類</label>
-      <div class="chip-row" id="announceTypeChips" style="margin-bottom:4px;">
-        <button class="chip act" onclick="selectAnnounceType(this,'配信')">配信</button>
-        <button class="chip" onclick="selectAnnounceType(this,'動画投稿')">動画投稿</button>
-        <button class="chip" onclick="selectAnnounceType(this,'イベント出展')">イベント出展</button>
-        <button class="chip" onclick="selectAnnounceType(this,'新作リリース')">新作リリース</button>
-        <button class="chip" onclick="selectAnnounceType(this,'コラボ')">コラボ</button>
-      </div>
-      <input type="hidden" id="announce-type" value="配信">
-      <label>タイトル・内容</label>
-      <input type="text" id="announce-title" placeholder="例:深夜雑談配信 #73、新曲「〇〇」リリース">
-      <label>日時（任意）</label>
-      <input type="text" id="announce-datetime" placeholder="例:6/26(木) 22:00〜、7月1日発売">
-      <label>ひとこと（任意）</label>
-      <input type="text" id="announce-note" placeholder="例:今回はゲストあり、初の試み">
-      <label>出力形式</label>
-      <div class="chip-row" id="announceFormatChips" style="margin-bottom:4px;">
-        <button class="chip act" onclick="selectAnnounceFormat(this,'X（Twitter）140文字')">X（140字）</button>
-        <button class="chip" onclick="selectAnnounceFormat(this,'Discord告知')">Discord</button>
-        <button class="chip" onclick="selectAnnounceFormat(this,'YouTube概要欄')">YouTube概要欄</button>
-        <button class="chip" onclick="selectAnnounceFormat(this,'ブログ・note')">ブログ</button>
-      </div>
-      <input type="hidden" id="announce-format" value="X（Twitter）140文字">
-      <button class="primary full" id="announceBtn" onclick="generateAnnounce()">告知文を生成する</button>
-      <div id="announceResult" style="margin-top:12px;"></div>
-    </div>
-    <!-- 配信前チェックリスト -->
-    <div class="card">
-      <div class="card-hd">配信前チェックリスト
-        <span class="link-btn" onclick="openModal('editChecklistModal')">編集</span>
-      </div>
-      <p class="hint" style="margin-top:-4px;">配信・投稿前の確認事項をテンプレート化できます。</p>
-      <div id="checklistItems"></div>
-      <button class="ghost" style="width:100%;margin-top:8px;" onclick="resetChecklist()">チェックをリセット</button>
-    </div>
+  <div class="page-header"><div class="page-title">配信前チェックリスト</div></div>
+  <div class="card">
+    <div class="card-hd" style="display:flex;justify-content:space-between;align-items:center;">チェックリスト<button class="ghost sm" onclick="openChecklistEditor()">編集</button></div>
+    <p class="hint" style="margin-top:-4px;">配信・投稿前の確認事項をテンプレート化できます。毎回ここでチェックしてから本番へ。</p>
+    <div id="checklistItems"></div>
+    <button class="ghost" style="width:100%;margin-top:8px;" onclick="resetChecklist()">チェックをリセット</button>
   </div>
 </div>
 
@@ -2210,6 +2177,7 @@ function onFab(){
   if(currentTab==='calendar'&&!document.getElementById('sch-date').value) document.getElementById('sch-date').value=todayISO();
   if(currentTab==='activity'&&!document.getElementById('act-date').value) document.getElementById('act-date').value=todayISO();
   if(currentTab==='revenue'&&!document.getElementById('rev-date').value) document.getElementById('rev-date').value=todayISO();
+  if(currentTab==='revenue') selectRevType('収入');
   openModal(modal);
 }
 
@@ -4257,65 +4225,6 @@ async function deleteEventItem(id){
   await loadEvents();renderEvents();
 }
 
-// ── ANNOUNCE（告知文生成） ──
-function selectAnnounceType(btn,type){
-  document.querySelectorAll('#announceTypeChips .chip').forEach(b=>b.classList.remove('act'));
-  btn.classList.add('act');document.getElementById('announce-type').value=type;
-}
-function selectAnnounceFormat(btn,fmt){
-  document.querySelectorAll('#announceFormatChips .chip').forEach(b=>b.classList.remove('act'));
-  btn.classList.add('act');document.getElementById('announce-format').value=fmt;
-}
-
-async function generateAnnounce(){
-  const btn=document.getElementById('announceBtn');
-  const result=document.getElementById('announceResult');
-  const type=document.getElementById('announce-type').value;
-  const title=document.getElementById('announce-title').value.trim();
-  const datetime=document.getElementById('announce-datetime').value.trim();
-  const note=document.getElementById('announce-note').value.trim();
-  const format=document.getElementById('announce-format').value;
-  if(!title){showError('タイトル・内容を入力してください');return;}
-  btn.disabled=true;btn.textContent='生成中...';
-  result.innerHTML='<div class="hint">AIが告知文を生成しています...</div>';
-  try{
-    const prompt=`あなたはVTuber・クリエイター向けの告知文ライターです。
-以下の情報をもとに「${format}」形式の告知文を生成してください。
-
-種類: ${type}
-タイトル/内容: ${title}
-${datetime?`日時: ${datetime}`:''}
-${note?`ひとこと: ${note}`:''}
-
-【出力形式のルール】
-- X（Twitter）140文字: 絵文字を効果的に使い、140文字以内で興味を引く文章
-- Discord告知: Markdownで見やすく、詳細情報を含める
-- YouTube概要欄: SEOを意識し、概要・タイムスタンプ・リンク誘導まで含める
-- ブログ・note: 導入文から丁寧に書く
-
-告知文のみを出力してください（説明文不要）。`;
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})
-    });
-    const data=await resp.json();
-    const text=data.content?.[0]?.text||'生成に失敗しました';
-    result.innerHTML=`<div class="announce-result">${escapeHtml(text)}</div>
-      <button class="ghost" style="width:100%;margin-top:8px;" onclick="copyAnnounceText(this,'${encodeURIComponent(text)}')">コピー</button>`;
-  }catch(e){
-    result.innerHTML=`<div class="ai-error">生成に失敗しました: ${escapeHtml(e.message)}</div>`;
-  }
-  btn.disabled=false;btn.textContent='告知文を生成する';
-}
-
-function copyAnnounceText(btn,encoded){
-  const text=decodeURIComponent(encoded);
-  const onS=()=>{btn.textContent='コピー済み ✓';setTimeout(()=>btn.textContent='コピー',2000);};
-  if(navigator.clipboard) navigator.clipboard.writeText(text).then(onS).catch(()=>fallbackCopy(text,onS));
-  else fallbackCopy(text,onS);
-}
-
 // ── チェックリスト ──
 const DEFAULT_CHECKLIST=['タイトル・サムネ確認','概要欄更新','告知ツイート投稿','配信テスト','BGM音量確認'];
 let checklistItems=[];
@@ -5031,7 +4940,7 @@ async function init(){
   updateTaskAssigneeSelect();
   const showGroup=teamMembers.length>0&&(currentPlan==='pro');
   setGate('groupScheduleGated',showGroup,'グループスケジュールはプロプランでメンバーを招待すると表示されます。');
-  setGate('announceGated',currentPlan!=='free','告知文生成はスタンダード以上でご利用いただけます。');
+  
   loadChecklist();
   renderSchedule();renderCalendar();renderRevenue();renderIdeas();renderTasks();renderTemplates();
   renderGoals();renderCharts();renderBurnout();renderHomeActivityStats();
