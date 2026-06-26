@@ -345,27 +345,40 @@ footer .copy{font-size:12px;color:var(--dim);}
         </div>
       </div>
 
-      <!-- 4: 告知文 -->
+            <!-- 4: チェックリスト -->
       <div class="feat-row reverse">
         <div class="feat-text">
-          <div class="icon">📣</div>
-          <h3>告知文AIで自動生成</h3>
-          <p>配信・動画投稿・コラボなどの告知文をAIが自動生成します。X（140文字）・Discord・YouTube概要欄・ブログの4形式に対応。タイトルと日時を入力するだけで下書きが完成します。配信前チェックリストも同タブに配置し、毎回の確認事項をテンプレート化できます。</p>
-          <span class="feat-tag std">スタンダード以上</span>
+          <div class="icon">📋</div>
+          <h3>配信前チェックリスト</h3>
+          <p>配信・投稿・作業前の確認事項をテンプレート化できます。タイトル確認・概要欄更新・告知投稿・配信テストなど毎回やることをリスト化してチェックするだけ。「編集」ボタンで自分用にカスタマイズ可能です。</p>
+          <span class="feat-tag">全プラン</span>
         </div>
         <div class="feat-visual">
           <div style="background:var(--panel);padding:14px;">
-            <div style="font-size:9px;color:var(--dim);font-weight:600;letter-spacing:.5px;margin-bottom:10px;">告知文をAIで生成</div>
-            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">
-              <div style="background:var(--live);color:#1A0E0C;font-size:9px;font-weight:600;padding:3px 8px;border-radius:8px;">配信</div>
-              <div style="background:var(--panel2);font-size:9px;color:var(--dim);padding:3px 8px;border-radius:8px;border:1px solid var(--border);">動画投稿</div>
-              <div style="background:var(--panel2);font-size:9px;color:var(--dim);padding:3px 8px;border-radius:8px;border:1px solid var(--border);">コラボ</div>
-              <div style="background:var(--panel2);font-size:9px;color:var(--dim);padding:3px 8px;border-radius:8px;border:1px solid var(--border);">イベント</div>
+            <div style="font-size:9px;color:var(--dim);font-weight:600;letter-spacing:.5px;margin-bottom:10px;">配信前チェックリスト</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">
+                <div style="width:14px;height:14px;border-radius:3px;background:var(--calm);display:flex;align-items:center;justify-content:center;font-size:9px;color:#1A0E0C;flex-shrink:0;">✓</div>
+                <span style="font-size:10px;color:var(--dim);text-decoration:line-through;">タイトル・サムネ確認</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">
+                <div style="width:14px;height:14px;border-radius:3px;background:var(--calm);display:flex;align-items:center;justify-content:center;font-size:9px;color:#1A0E0C;flex-shrink:0;">✓</div>
+                <span style="font-size:10px;color:var(--dim);text-decoration:line-through;">概要欄更新</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">
+                <div style="width:14px;height:14px;border-radius:3px;border:1.5px solid var(--border);flex-shrink:0;"></div>
+                <span style="font-size:10px;">告知ツイート投稿</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">
+                <div style="width:14px;height:14px;border-radius:3px;border:1.5px solid var(--border);flex-shrink:0;"></div>
+                <span style="font-size:10px;">配信テスト</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+                <div style="width:14px;height:14px;border-radius:3px;border:1.5px solid var(--border);flex-shrink:0;"></div>
+                <span style="font-size:10px;">BGM音量確認</span>
+              </div>
             </div>
-            <div style="background:var(--panel2);border-radius:8px;padding:10px;font-size:10px;line-height:1.6;color:var(--dim2,var(--text));">
-              📡 【配信告知】<br>本日22:00より雑談配信やります！<br>最近あったこと話しながらまったり過ごしましょ🎮<br><br>▼ YouTube<br>https://youtube.com/...<br><br>#VTuber #配信 #雑談
-            </div>
-            <button style="width:100%;background:none;border:1px solid var(--border);color:var(--dim);border-radius:7px;padding:6px;font-size:9px;margin-top:8px;cursor:default;">コピー</button>
+            <button style="width:100%;background:none;border:1px solid var(--border);color:var(--dim);border-radius:7px;padding:6px;font-size:9px;margin-top:10px;cursor:default;">チェックをリセット</button>
           </div>
         </div>
       </div>
@@ -474,7 +487,7 @@ footer .copy{font-size:12px;color:var(--dim);}
         <ul>
           <li>無料プランの全機能</li>
           <li>コラボ申請受付リンク</li>
-          <li>告知文AI生成・チェックリスト</li>
+          <li>配信前チェックリスト</li>
           <li>収支管理（直近3ヶ月）</li>
           <li>CSVエクスポート</li>
           <li>AI振り返りレポート（月10回）</li>

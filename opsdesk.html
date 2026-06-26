@@ -799,7 +799,9 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="page-title">収支</div>
     <select id="rev-period" onchange="renderRevenue()" style="width:auto;margin:0;font-size:12px;padding:6px 10px;border-radius:8px;min-height:36px;">
       <option value="thisMonth">今月</option><option value="lastMonth">前月</option>
-      <option value="thisYear">今年</option><option value="all">全期間</option>
+      <option value="last3months">直近3ヶ月</option>
+      <option value="thisYear" class="rev-pro-option">今年 🔒</option>
+      <option value="all" class="rev-pro-option">全期間 🔒</option>
     </select>
   </div>
   <div class="gated" id="revenueGated">
@@ -2767,17 +2769,24 @@ function selectRevType(type){
   updateRevCategoryOtherField();
 }
 function updateRevCategoryOtherField(){const v=document.getElementById('rev-category').value;document.getElementById('rev-category-other').style.display=(v==='その他収入'||v==='その他経費')?'block':'none';}
-const PERIOD_LABELS={thisMonth:'今月の収支',lastMonth:'前月の収支',thisYear:'今年の収支',all:'全期間の収支'};
+const PERIOD_LABELS={thisMonth:'今月の収支',lastMonth:'前月の収支',last3months:'直近3ヶ月の収支',thisYear:'今年の収支',all:'全期間の収支'};
 function filterByPeriod(items,period){
   const now=new Date();if(period==='all')return items;
   if(period==='thisYear')return items.filter(r=>new Date(r.date).getFullYear()===now.getFullYear());
   if(period==='lastMonth'){const lm=new Date(now.getFullYear(),now.getMonth()-1,1);return items.filter(r=>{const d=new Date(r.date);return d.getMonth()===lm.getMonth()&&d.getFullYear()===lm.getFullYear();});}
+  if(period==='last3months'){const t=new Date(now.getFullYear(),now.getMonth()-2,1);return items.filter(r=>new Date(r.date)>=t);}
   return items.filter(r=>{const d=new Date(r.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
 }
 function renderRevenue(){
   const period=document.getElementById('rev-period').value;
-  document.getElementById('revenueStatsLabel').textContent=PERIOD_LABELS[period];
-  const pItems=filterByPeriod(revenue,period);
+  // プロでない場合、今年・全期間を選んでいたら直近3ヶ月に戻す
+  if(currentPlan!=='pro'&&(period==='thisYear'||period==='all')){
+    document.getElementById('rev-period').value='last3months';
+    showError('今年・全期間の表示はプロプランでご利用いただけます。');
+    renderRevenue();return;
+  }
+  document.getElementById('revenueStatsLabel').textContent=PERIOD_LABELS[document.getElementById('rev-period').value]||PERIOD_LABELS[period];
+  const pItems=filterByPeriod(revenue,document.getElementById('rev-period').value);
   const income=pItems.filter(r=>(r.type||'収入')==='収入').reduce((s,r)=>s+Number(r.amount),0);
   const expense=pItems.filter(r=>r.type==='支出').reduce((s,r)=>s+Number(r.amount),0);
   document.getElementById('revenueStats').innerHTML=`<div class="stat"><div class="num">¥${income.toLocaleString()}</div><div class="lbl">収入</div></div><div class="stat"><div class="num" style="color:var(--live);">¥${expense.toLocaleString()}</div><div class="lbl">支出</div></div><div class="stat"><div class="num">¥${(income-expense).toLocaleString()}</div><div class="lbl">差額</div></div>`;
@@ -2827,7 +2836,16 @@ async function addRevenue(){
   closeModal('addRevenueModal');await loadEverything();renderRevenue();renderGoals();renderCharts();showToast('記録しました');
 }
 function downloadCSV(csv,filename){const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
-function exportRevenueCSV(){if(!revenue.length){showError('まだ収支データがありません');return;}const rows=[['日付','区分','種別','受け取り元・支払先','内訳・メモ','金額']];[...revenue].sort((a,b)=>new Date(a.date)-new Date(b.date)).forEach(r=>rows.push([r.date,r.type||'収入',r.category,r.platform||'',r.memo||'',r.amount]));downloadCSV(rows.map(row=>row.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n'),'opsdesk_kakutei_shinkoku.csv');}
+function exportRevenueCSV(){
+  if(!revenue.length){showError('まだ収支データがありません');return;}
+  // スタンダードは直近3ヶ月まで、プロは全期間
+  const isPro=currentPlan==='pro';
+  const exportData=isPro?revenue:filterByPeriod(revenue,'last3months');
+  const label=isPro?'全期間':'直近3ヶ月';
+  const rows=[['日付','区分','種別','受け取り元・支払先','内訳・メモ','金額']];
+  [...exportData].sort((a,b)=>new Date(a.date)-new Date(b.date)).forEach(r=>rows.push([r.date,r.type||'収入',r.category,r.platform||'',r.memo||'',r.amount]));
+  downloadCSV(rows.map(row=>row.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n'),`opsdesk_kakutei_shinkoku_${label}.csv`);
+}
 function exportAllCSV(){let csv='【配信予定】\n日付,時間,プラットフォーム,タイトル\n';schedule.forEach(s=>csv+=`"${s.date}","${s.time||''}","${s.platform||''}","${String(s.title).replace(/"/g,'""')}"\n`);csv+='\n【収支】\n日付,区分,プラットフォーム/支払先,種別,金額\n';revenue.forEach(r=>csv+=`"${r.date}","${r.type||'収入'}","${r.platform||''}","${r.category}","${r.amount}"\n`);downloadCSV(csv,'opsdesk_all_data.csv');}
 function downloadCsvTemplate(){downloadCSV('日付,金額,内容\n2026-06-01,5000,配信用マイク購入\n','opsdesk_expense_template.csv');}
 function parseCsvLine(line){const result=[];let cur='',inQ=false;for(let i=0;i<line.length;i++){const c=line[i];if(inQ){if(c==='"'){if(line[i+1]==='"'){cur+='"';i++;}else inQ=false;}else cur+=c;}else{if(c==='"')inQ=true;else if(c===','){result.push(cur);cur='';}else cur+=c;}}result.push(cur);return result;}
