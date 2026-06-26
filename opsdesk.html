@@ -1304,16 +1304,14 @@ input[type=number]{-moz-appearance:textfield;}
       <div class="guide-tip"><span class="ti">💡</span>使わない場合は設定タブの「表示タブのカスタマイズ」でオフにできます。</div>
     </div>
 
-    <!-- 告知文 -->
+    <!-- チェックリスト -->
     <div class="guide-page" id="g-announce">
-      <h3>📣 告知文生成</h3>
-      <p>配信・投稿・リリース・イベント出展などの告知文をAIが自動生成します。毎回ゼロから書く手間を省けます。</p>
-      <div class="guide-step"><div class="sn">1</div><div class="st"><strong>種類を選ぶ</strong>：配信・動画投稿・イベント出展・新作リリース・コラボから選びます。</div></div>
-      <div class="guide-step"><div class="sn">2</div><div class="st"><strong>情報を入力</strong>：タイトル・日時・ひとことを入力します。少ない情報でも生成できますが、詳しいほど精度が上がります。</div></div>
-      <div class="guide-step"><div class="sn">3</div><div class="st"><strong>出力形式を選ぶ</strong>：X（140文字）・Discord・YouTube概要欄・ブログの4種類から選べます。</div></div>
-      <div class="guide-step"><div class="sn">4</div><div class="st"><strong>コピーして投稿</strong>：生成された文章を確認してコピーボタンで一発コピーできます。</div></div>
-      <div class="guide-step"><div class="sn">5</div><div class="st"><strong>配信前チェックリスト</strong>：同タブ内のチェックリストで活動前の確認事項を管理できます。「編集」ボタンで自分用にカスタマイズできます。</div></div>
-      <div class="guide-tip"><span class="ti">💡</span>告知文はあくまで下書きです。AIが生成した文章を自分の言葉に少し手を加えると、よりオリジナリティが出ます。</div>
+      <h3>📋 配信前チェックリスト</h3>
+      <p>配信・投稿・作業前の確認事項をテンプレート化して毎回チェックできます。「チェック」タブにあります。</p>
+      <div class="guide-step"><div class="sn">1</div><div class="st"><strong>チェックする</strong>：各項目をタップするとチェックが入ります。本番前に上から順に確認していきます。</div></div>
+      <div class="guide-step"><div class="sn">2</div><div class="st"><strong>リセット</strong>：「チェックをリセット」ボタンで全項目を未チェック状態に戻せます。毎回の配信前に使います。</div></div>
+      <div class="guide-step"><div class="sn">3</div><div class="st"><strong>編集する</strong>：「編集」ボタンで項目を自由にカスタマイズできます。1行につき1項目で入力します。</div></div>
+      <div class="guide-tip"><span class="ti">💡</span>デフォルトはタイトル確認・概要欄更新・告知投稿・配信テスト・BGM音量確認の5項目です。自分の配信スタイルに合わせて変更してください。</div>
     </div>
 
     <!-- セキュリティ -->
@@ -1451,7 +1449,7 @@ input[type=number]{-moz-appearance:textfield;}
     </div>
     <input type="hidden" id="rev-type" value="収入">
     <div class="row">
-      <div><label>金額(円)</label><input type="number" id="rev-amount" placeholder="例:3000" inputmode="numeric"></div>
+      <div><label>金額（円）</label><input type="number" id="rev-amount" placeholder="例:3000" inputmode="numeric"></div>
       <div>
         <label>日付</label>
         <div class="chip-row" style="margin-bottom:4px;">
@@ -1461,12 +1459,15 @@ input[type=number]{-moz-appearance:textfield;}
         <input type="text" id="rev-date" readonly placeholder="日付を選択" onclick="openDatePicker('rev-date')">
       </div>
     </div>
-    <label>種別</label>
+    <label id="rev-category-label">収入の種類</label>
     <div class="chip-row" id="revCategoryChips" style="flex-wrap:wrap;margin-bottom:4px;"></div>
     <input type="hidden" id="rev-category" value="">
-    <input type="text" id="rev-category-other" placeholder="種別を入力" style="display:none;">
-    <label>プラットフォーム/支払先</label>
-    <input type="text" id="rev-platform" placeholder="例:YouTube、Amazon" list="revPlatformHistoryList">
+    <input type="text" id="rev-category-other" placeholder="種別を入力" style="display:none;margin-bottom:4px;">
+    <label id="rev-platform-label">受け取り元・プラットフォーム</label>
+    <input type="text" id="rev-platform" placeholder="例:YouTube スパチャ、〇〇株式会社" list="revPlatformHistoryList">
+    <datalist id="revPlatformHistoryList"></datalist>
+    <label>内訳・メモ（任意）</label>
+    <input type="text" id="rev-memo" placeholder="例:〇〇さんからのスパチャ、〇〇の購入費">
     <div style="display:flex;gap:8px;">
       <button class="ghost" style="flex:1;" onclick="closeModal('addRevenueModal')">キャンセル</button>
       <button class="primary" style="flex:2;" onclick="addRevenue()">記録する</button>
@@ -2390,7 +2391,7 @@ async function loadEverything(){
     fetchAll('collab_partners').catch(()=>[]),fetchAll('team_members').catch(()=>[])
   ]);
   schedule=schRows.map(r=>({id:r.id,date:r.date,time:r.time,timeEnd:r.time_end,platform:r.platform,title:r.title,type:r.type,done:r.done,googleEventId:r.google_event_id,note:r.note||''}));
-  revenue=revRows.map(r=>({id:r.id,date:r.date,amount:r.amount,platform:r.platform,category:r.category,type:r.type}));
+  revenue=revRows.map(r=>({id:r.id,date:r.date,amount:r.amount,platform:r.platform,category:r.category,type:r.type,memo:r.memo||''}));
   ideas=ideaRows.filter(r=>!r.type||r.type==='idea').map(r=>({id:r.id,text:r.text,createdAt:new Date(r.created_at).getTime()}));
   tasks=taskRows.map(r=>({id:r.id,text:r.text,done:r.done,assigneeId:r.assignee_id||null,dueDate:r.due_date||null,createdAt:new Date(r.created_at).getTime()}));
   deals=dealRows.map(r=>({id:r.id,company:r.company,contact:r.contact,contactInfo:r.contact_info,status:r.status,amount:r.amount,memo:r.memo,deadline:r.deadline,createdAt:new Date(r.created_at).getTime()}));
@@ -2729,12 +2730,20 @@ function selectRevType(type){
   document.getElementById('rev-type').value=type;
   document.getElementById('rev-type-income').classList.toggle('act',type==='収入');
   document.getElementById('rev-type-expense').classList.toggle('act',type==='支出');
+  // ラベルを切り替え
+  const catLabel=document.getElementById('rev-category-label');
+  const platLabel=document.getElementById('rev-platform-label');
+  if(catLabel) catLabel.textContent=type==='収入'?'収入の種類':'支出の種類';
+  if(platLabel) platLabel.textContent=type==='収入'?'受け取り元・プラットフォーム':'支払先・購入先';
   // カテゴリチップを更新
   const cats=REV_CATS[type]||[];
   const chipsEl=document.getElementById('revCategoryChips');
   chipsEl.innerHTML=cats.map((c,i)=>`<button class="chip${i===0?' act':''}" onclick="selectRevCat(this,'${c}')">${c}</button>`).join('');
   document.getElementById('rev-category').value=cats[0]||'';
   document.getElementById('rev-category-other').style.display='none';
+  // プレースホルダーを切り替え
+  const platInput=document.getElementById('rev-platform');
+  if(platInput) platInput.placeholder=type==='収入'?'例:YouTube、〇〇株式会社':'例:Amazon、家電量販店';
 }
 function selectRevCat(btn,cat){
   document.querySelectorAll('#revCategoryChips .chip').forEach(b=>b.classList.remove('act'));
@@ -2779,9 +2788,14 @@ function renderRevenue(){
   el.innerHTML=visible.map(r=>{
     const type=r.type||'収入';
     if(r.id===editingRevenueId){
-      return`<div class="li" style="flex-wrap:wrap;"><div class="row" style="width:100%;"><input type="number" id="rev-edit-amount-${r.id}" value="${r.amount}" onkeydown="if(event.key==='Enter'){event.preventDefault();saveRevenueEdit('${r.id}');}else if(event.key==='Escape')cancelRevenueEdit();"><input type="text" id="rev-edit-category-${r.id}" value="${escapeHtml(r.category)}" placeholder="種別"></div><input type="text" id="rev-edit-platform-${r.id}" value="${escapeHtml(r.platform||'')}" placeholder="プラットフォーム/支払先"><div class="row" style="width:100%;"><button class="primary" onclick="saveRevenueEdit('${r.id}')">保存</button><button class="ghost" onclick="cancelRevenueEdit()">キャンセル</button></div></div>`;
+      return`<div class="li" style="flex-wrap:wrap;"><div class="row" style="width:100%;"><input type="number" id="rev-edit-amount-${r.id}" value="${r.amount}" onkeydown="if(event.key==='Enter'){event.preventDefault();saveRevenueEdit('${r.id}');}else if(event.key==='Escape')cancelRevenueEdit();"><input type="text" id="rev-edit-category-${r.id}" value="${escapeHtml(r.category)}" placeholder="種別"></div><input type="text" id="rev-edit-platform-${r.id}" value="${escapeHtml(r.platform||'')}" placeholder="受け取り元・支払先"><input type="text" id="rev-edit-memo-${r.id}" value="${escapeHtml(r.memo||'')}" placeholder="内訳・メモ（任意）"><div class="row" style="width:100%;"><button class="primary" onclick="saveRevenueEdit('${r.id}')">保存</button><button class="ghost" onclick="cancelRevenueEdit()">キャンセル</button></div></div>`;
     }
-    return`<div class="li"><div class="li-row"><div class="li-main"><div class="li-title">${type==='支出'?'-':''}¥${Number(r.amount).toLocaleString()}</div><div class="li-meta">${fmtDate(r.date)} ・ ${escapeHtml(r.category)}${r.platform?' ・ '+escapeHtml(r.platform):''}</div></div><span class="tag" style="${type==='支出'?'color:var(--live);border-color:var(--live);':'color:var(--calm);border-color:var(--calm);'}">${type}</span></div><div class="li-acts"><button class="ghost sm" onclick="startRevenueEdit('${r.id}')">編集</button><button class="ghost sm" onclick="deleteItem('revenue','${r.id}')">削除</button></div></div>`;
+    return`<div class="li"><div class="li-row"><div class="li-main">
+      <div class="li-title" style="color:${type==='支出'?'var(--live)':'var(--calm);'};">${type==='支出'?'－':'＋'}¥${Number(r.amount).toLocaleString()}</div>
+      <div class="li-meta">${fmtDate(r.date)} ・ <strong style="color:var(--text);">${escapeHtml(r.category)}</strong>${r.platform?' ・ '+escapeHtml(r.platform):''}</div>
+      ${r.memo?`<div style="font-size:11.5px;color:var(--dim);margin-top:2px;">📝 ${escapeHtml(r.memo)}</div>`:''}
+    </div><span class="tag" style="${type==='支出'?'color:var(--live);border-color:var(--live);':'color:var(--calm);border-color:var(--calm);'}">${type}</span></div>
+    <div class="li-acts"><button class="ghost sm" onclick="startRevenueEdit('${r.id}')">編集</button><button class="ghost sm" onclick="deleteItem('revenue','${r.id}')">削除</button></div></div>`;
   }).join('');
   if(sorted.length>PAGE){mBtn.style.display='block';mBtn.textContent=revenueShowAll?'表示を減らす':`もっと見る(残り${sorted.length-PAGE}件)`;}else mBtn.style.display='none';
 }
@@ -2789,8 +2803,12 @@ function toggleRevenueShowAll(){revenueShowAll=!revenueShowAll;renderRevenue();}
 function startRevenueEdit(id){editingRevenueId=id;renderRevenue();setTimeout(()=>document.getElementById('rev-edit-amount-'+id)?.focus(),0);}
 function cancelRevenueEdit(){editingRevenueId=null;renderRevenue();}
 async function saveRevenueEdit(id){
-  const amount=document.getElementById('rev-edit-amount-'+id).value;const category=document.getElementById('rev-edit-category-'+id).value.trim();const platform=document.getElementById('rev-edit-platform-'+id).value.trim();
-  if(!amount)return;await sb.from('revenue_items').update({amount,category,platform}).eq('id',id);
+  const amount=document.getElementById('rev-edit-amount-'+id).value;
+  const category=document.getElementById('rev-edit-category-'+id).value.trim();
+  const platform=document.getElementById('rev-edit-platform-'+id).value.trim();
+  const memo=document.getElementById('rev-edit-memo-'+id)?.value.trim()||'';
+  if(!amount)return;
+  await sb.from('revenue_items').update({amount,category,platform,memo:memo||null}).eq('id',id);
   editingRevenueId=null;await loadEverything();renderRevenue();renderGoals();renderCharts();showToast('更新しました');
 }
 async function addRevenue(){
@@ -2798,19 +2816,18 @@ async function addRevenue(){
   const date=document.getElementById('rev-date').value,amount=document.getElementById('rev-amount').value;
   const type=document.getElementById('rev-type').value;
   let category=document.getElementById('rev-category').value;
-  // その他の場合は自由入力欄から取得
   if(!category){const c=document.getElementById('rev-category-other').value.trim();if(!c){showError('種別を入力してください');return;}category=c;}
   const platform=document.getElementById('rev-platform').value.trim();
+  const memo=document.getElementById('rev-memo').value.trim();
   if(!date||!amount){showError('日付と金額を入力してください');return;}
-  const{error}=await sb.from('revenue_items').insert({user_id:user.id,date,amount,platform,category,type});
+  const{error}=await sb.from('revenue_items').insert({user_id:user.id,date,amount,platform,category,type,memo:memo||null});
   if(error){showError('保存に失敗しました: '+translateError(error.message));return;}
-  ['rev-amount','rev-platform','rev-category-other'].forEach(id=>document.getElementById(id).value='');
-  // チップを最初の項目に戻す
+  ['rev-amount','rev-platform','rev-category-other','rev-memo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   selectRevType(type);
   closeModal('addRevenueModal');await loadEverything();renderRevenue();renderGoals();renderCharts();showToast('記録しました');
 }
 function downloadCSV(csv,filename){const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
-function exportRevenueCSV(){if(!revenue.length){showError('まだ収支データがありません');return;}const rows=[['日付','区分','プラットフォーム/支払先','種別','金額']];[...revenue].sort((a,b)=>new Date(a.date)-new Date(b.date)).forEach(r=>rows.push([r.date,r.type||'収入',r.platform,r.category,r.amount]));downloadCSV(rows.map(row=>row.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n'),'opsdesk_kakutei_shinkoku.csv');}
+function exportRevenueCSV(){if(!revenue.length){showError('まだ収支データがありません');return;}const rows=[['日付','区分','種別','受け取り元・支払先','内訳・メモ','金額']];[...revenue].sort((a,b)=>new Date(a.date)-new Date(b.date)).forEach(r=>rows.push([r.date,r.type||'収入',r.category,r.platform||'',r.memo||'',r.amount]));downloadCSV(rows.map(row=>row.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n'),'opsdesk_kakutei_shinkoku.csv');}
 function exportAllCSV(){let csv='【配信予定】\n日付,時間,プラットフォーム,タイトル\n';schedule.forEach(s=>csv+=`"${s.date}","${s.time||''}","${s.platform||''}","${String(s.title).replace(/"/g,'""')}"\n`);csv+='\n【収支】\n日付,区分,プラットフォーム/支払先,種別,金額\n';revenue.forEach(r=>csv+=`"${r.date}","${r.type||'収入'}","${r.platform||''}","${r.category}","${r.amount}"\n`);downloadCSV(csv,'opsdesk_all_data.csv');}
 function downloadCsvTemplate(){downloadCSV('日付,金額,内容\n2026-06-01,5000,配信用マイク購入\n','opsdesk_expense_template.csv');}
 function parseCsvLine(line){const result=[];let cur='',inQ=false;for(let i=0;i<line.length;i++){const c=line[i];if(inQ){if(c==='"'){if(line[i+1]==='"'){cur+='"';i++;}else inQ=false;}else cur+=c;}else{if(c==='"')inQ=true;else if(c===','){result.push(cur);cur='';}else cur+=c;}}result.push(cur);return result;}
