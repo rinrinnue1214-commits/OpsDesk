@@ -2080,7 +2080,14 @@ BGM音量確認"></textarea>
 <script>
 const SUPABASE_URL="https://ricanqcwhglbutubbcom.supabase.co";
 const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpY2FucWN3aGdsYnV0dWJiY29tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwNTc0NTUsImV4cCI6MjA5NzYzMzQ1NX0.vqqNnsLpJhCp4qTOBCcDCz2XCmAxLfd3_5583mcmhdk";
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{
+  auth:{
+    storage:window.localStorage,
+    autoRefreshToken:true,
+    persistSession:true,
+    detectSessionInUrl:true
+  }
+});
 
 // ── STATE ──
 let schedule=[],youtubeLinks={},templates=[],revenue=[],ideas=[],tasks=[];
