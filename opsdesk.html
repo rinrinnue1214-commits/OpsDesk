@@ -416,6 +416,39 @@ input[type=number]{-moz-appearance:textfield;}
 .event-card .ev-stat .lbl{font-size:10px;color:var(--dim);}
 /* ── ANNOUNCE ── */
 .announce-result{background:var(--panel2);border-radius:10px;padding:12px;margin-top:10px;font-size:13px;line-height:1.7;white-space:pre-wrap;}
+/* ── TRACKING ── */
+.track-chart{width:100%;height:80px;margin:10px 0 4px;}
+.track-legend{display:flex;gap:12px;font-size:10.5px;color:var(--dim);flex-wrap:wrap;margin-bottom:4px;}
+.track-legend span{display:flex;align-items:center;gap:4px;}
+.track-legend .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.act-detail-row{display:flex;flex-wrap:wrap;gap:8px;font-size:11.5px;margin-top:4px;}
+.act-detail-badge{background:var(--panel2);border-radius:6px;padding:3px 8px;font-family:'IBM Plex Mono',monospace;}
+/* ── SCRIPT EDITOR ── */
+.script-card{background:var(--panel2);border-radius:12px;margin-bottom:8px;overflow:hidden;}
+.script-card-hd{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+.script-card-hd:hover{background:rgba(255,255,255,.03);}
+.script-card-title{font-size:14px;font-weight:600;}
+.script-card-meta{font-size:11px;color:var(--dim);font-family:'IBM Plex Mono',monospace;}
+.script-editor{padding:0 14px 14px;display:none;}
+.script-editor.open{display:block;}
+.script-toolbar{display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap;}
+.script-toolbar button{background:var(--panel);border:1px solid var(--border);color:var(--dim);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:'IBM Plex Mono',monospace;}
+.script-toolbar button:hover{color:var(--text);border-color:var(--dim);}
+.script-textarea{width:100%;min-height:180px;resize:vertical;background:var(--panel);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:10px 12px;line-height:1.7;}
+.script-textarea:focus{outline:none;border-color:var(--dim);}
+/* ── PROJECT KANBAN ── */
+.proj-kanban{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.proj-kanban::-webkit-scrollbar{height:4px;}
+.proj-kanban::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.proj-col{flex-shrink:0;width:180px;background:var(--panel2);border-radius:12px;padding:10px;}
+.proj-col-hd{font-size:10.5px;font-weight:600;color:var(--dim);letter-spacing:.5px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.proj-col-hd .pc-add{background:none;border:none;color:var(--dim);font-size:16px;cursor:pointer;padding:0;line-height:1;}
+.proj-col-hd .pc-add:hover{color:var(--text);}
+.proj-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:6px;font-size:12.5px;cursor:pointer;transition:border-color .15s;}
+.proj-card:hover{border-color:var(--dim);}
+.proj-card .pk-title{font-weight:500;margin-bottom:4px;line-height:1.4;}
+.proj-card .pk-meta{font-size:10.5px;color:var(--dim);display:flex;flex-wrap:wrap;gap:4px;}
+.proj-card .pk-tag{font-size:9.5px;padding:1px 6px;border-radius:8px;border:1px solid;font-family:'IBM Plex Mono',monospace;}
 </style>
 </head>
 <body>
@@ -551,6 +584,7 @@ input[type=number]{-moz-appearance:textfield;}
     <button class="tab-btn" data-tab="activity" onclick="switchTab('activity')"><span class="ni">📊</span>実績</button>
     <button class="tab-btn" data-tab="revenue" onclick="switchTab('revenue')"><span class="ni">💰</span>収支</button>
     <button class="tab-btn" data-tab="ideas" onclick="switchTab('ideas')"><span class="ni">💡</span><span class="tab-label" data-key="ideas">ネタ帳</span></button>
+    <button class="tab-btn" data-tab="projects" onclick="switchTab('projects')" style="display:none;"><span class="ni">🗂️</span><span class="tab-label" data-key="projects">企画</span></button>
     <button class="tab-btn" data-tab="progress" onclick="switchTab('progress')" style="display:none;"><span class="ni">📐</span><span class="tab-label" data-key="progress">制作進捗</span></button>
     <button class="tab-btn" data-tab="events" onclick="switchTab('events')" style="display:none;"><span class="ni">🎪</span><span class="tab-label" data-key="events">出展管理</span></button>
     <button class="tab-btn" data-tab="announce" onclick="switchTab('announce')" style="display:none;"><span class="ni">📣</span><span class="tab-label" data-key="announce">告知文</span></button>
@@ -739,6 +773,18 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="card-hd"><span id="activityMonthLabel">今月の実績</span></div>
     <div id="activityStats" class="stat-row" style="flex-wrap:wrap;grid-template-columns:repeat(3,1fr);"></div>
   </div>
+  <!-- トラッキンググラフ -->
+  <div class="card" id="trackingChartCard" style="display:none;">
+    <div class="card-hd coll-hd closed" onclick="toggleColl(this,'trackingBody')">視聴者数・トレンド <span class="chev">▾</span></div>
+    <div class="coll-body closed" id="trackingBody">
+      <div class="track-legend">
+        <span><span class="dot" style="background:var(--live);"></span>同接・再生数</span>
+        <span><span class="dot" style="background:var(--calm);"></span>コメント数</span>
+      </div>
+      <canvas id="trackingChart" class="track-chart"></canvas>
+      <div id="trackingBest" style="font-size:12px;color:var(--dim);margin-top:6px;"></div>
+    </div>
+  </div>
   <div class="card">
     <div class="card-hd">実績一覧</div>
     <div id="activityList"><div class="empty">まだ実績がありません</div></div>
@@ -791,7 +837,38 @@ input[type=number]{-moz-appearance:textfield;}
     <div id="tasksList"><div class="empty">タスクはありません</div></div>
   </div>
   <div class="card"><div class="card-hd">ネタ帳</div><div id="ideasList"><div class="empty">ネタを追加してください</div></div></div>
+  <div class="card">
+    <div class="card-hd" style="display:flex;justify-content:space-between;align-items:center;">配信スクリプト・台本<button class="ghost sm" onclick="openModal('addScriptModal')">＋ 新規</button></div>
+    <p class="hint" style="margin-top:-4px;">配信前の話の流れや台本をメモ。見出し（# ）・箇条書き（- ）・タイムスタンプ（[00:00]）に対応。</p>
+    <div id="scriptList"><div class="empty">スクリプトを追加してください</div></div>
+  </div>
   <div class="card"><div class="card-hd">メモ帳（テンプレート）</div><div id="templatesList"><div class="empty">まだメモがありません</div></div></div>
+</div>
+
+<!-- PROJECTS（企画管理） -->
+<div class="panel" id="panel-projects">
+  <div class="page-header"><div class="page-title">企画管理</div></div>
+  <div class="card">
+    <p class="hint" style="margin:0 0 10px;">「YouTube新シリーズ」「コラボ企画」「グッズ制作」など自分発信の企画をカンバンで管理します。</p>
+    <div class="proj-kanban" id="projKanban">
+      <div class="proj-col" id="proj-col-idea">
+        <div class="proj-col-hd"><span>💭 アイデア</span><button class="pc-add" onclick="openAddProjectModal('アイデア')">＋</button></div>
+        <div id="proj-cards-idea"></div>
+      </div>
+      <div class="proj-col" id="proj-col-ready">
+        <div class="proj-col-hd"><span>📋 準備中</span><button class="pc-add" onclick="openAddProjectModal('準備中')">＋</button></div>
+        <div id="proj-cards-ready"></div>
+      </div>
+      <div class="proj-col" id="proj-col-wip">
+        <div class="proj-col-hd"><span>🔥 進行中</span><button class="pc-add" onclick="openAddProjectModal('進行中')">＋</button></div>
+        <div id="proj-cards-wip"></div>
+      </div>
+      <div class="proj-col" id="proj-col-done">
+        <div class="proj-col-hd"><span>✅ 完了</span><button class="pc-add" onclick="openAddProjectModal('完了')">＋</button></div>
+        <div id="proj-cards-done"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- PROGRESS（制作進捗） -->
@@ -1463,8 +1540,14 @@ input[type=number]{-moz-appearance:textfield;}
     <input type="text" id="act-date" readonly placeholder="日付を選択" onclick="openDatePicker('act-date')">
     <label>タイトル（任意）</label>
     <input type="text" id="act-title" placeholder="例:深夜雑談配信 #73">
-    <label>再生数/視聴者数（任意）</label>
-    <input type="number" id="act-views" placeholder="例:1500" inputmode="numeric">
+    <div class="row">
+      <div><label>最大同接・再生数</label><input type="number" id="act-views" placeholder="例:1500" inputmode="numeric"></div>
+      <div><label>コメント数（任意）</label><input type="number" id="act-comments" placeholder="例:320" inputmode="numeric"></div>
+    </div>
+    <div class="row">
+      <div><label>配信時間（分・任意）</label><input type="number" id="act-duration" placeholder="例:90" inputmode="numeric"></div>
+      <div><label>収益（円・任意）</label><input type="number" id="act-earning" placeholder="例:3200" inputmode="numeric"></div>
+    </div>
     <div style="display:flex;gap:8px;">
       <button class="ghost" style="flex:1;" onclick="closeModal('addActivityModal')">キャンセル</button>
       <button class="primary" style="flex:2;" onclick="addActivity()">記録する</button>
@@ -1718,6 +1801,56 @@ input[type=number]{-moz-appearance:textfield;}
     <div style="display:flex;gap:8px;margin-top:4px;">
       <button class="ghost" style="flex:1;" onclick="closeModal('editMemberModal')">キャンセル</button>
       <button class="primary" style="flex:2;" onclick="saveMemberRole()">変更する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 配信スクリプト追加モーダル -->
+<div class="modal-overlay" id="addScriptModal">
+  <div class="modal-box" style="max-width:560px;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">スクリプトを追加</div>
+    <label>タイトル</label>
+    <input type="text" id="script-title" placeholder="例:深夜雑談配信 #74 台本">
+    <label>本文</label>
+    <div class="script-toolbar">
+      <button onclick="insertScriptSyntax('# ')">見出し</button>
+      <button onclick="insertScriptSyntax('- ')">箇条書き</button>
+      <button onclick="insertScriptSyntax('[00:00] ')">タイムスタンプ</button>
+      <button onclick="insertScriptSyntax('---\n')">区切り線</button>
+    </div>
+    <textarea id="script-body" class="script-textarea" placeholder="# オープニング&#10;- 挨拶・近況報告&#10;&#10;[00:10] ゲームコーナー&#10;- 〇〇ステージを攻略&#10;&#10;# エンディング&#10;---&#10;お知らせ: 次回は〇月〇日"></textarea>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="ghost" style="flex:1;" onclick="closeModal('addScriptModal')">キャンセル</button>
+      <button class="primary" style="flex:2;" onclick="saveScript()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- プロジェクト追加モーダル -->
+<div class="modal-overlay" id="addProjectModal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="addProjectModalTitle">企画を追加</div>
+    <label>企画名</label>
+    <input type="text" id="proj-title" placeholder="例:新シリーズ「〇〇」・コラボ企画・グッズ制作">
+    <label>カテゴリ（任意）</label>
+    <div class="chip-row" id="projCatChips" style="margin-bottom:4px;">
+      <button class="chip act" onclick="selectProjCat(this,'動画')">動画</button>
+      <button class="chip" onclick="selectProjCat(this,'配信')">配信</button>
+      <button class="chip" onclick="selectProjCat(this,'コラボ')">コラボ</button>
+      <button class="chip" onclick="selectProjCat(this,'グッズ')">グッズ</button>
+      <button class="chip" onclick="selectProjCat(this,'その他')">その他</button>
+    </div>
+    <input type="hidden" id="proj-cat" value="動画">
+    <input type="hidden" id="proj-status" value="アイデア">
+    <label>メモ（任意）</label>
+    <textarea id="proj-memo" placeholder="例:〇〇さんとのコラボ前提、来月までに企画案を固める" style="min-height:56px;"></textarea>
+    <label>締め切り（任意）</label>
+    <input type="text" id="proj-deadline" readonly placeholder="日付を選択" onclick="openDatePicker('proj-deadline')">
+    <div style="display:flex;gap:8px;">
+      <button class="ghost" style="flex:1;" onclick="closeModal('addProjectModal')">キャンセル</button>
+      <button class="primary" style="flex:2;" onclick="addProject()">追加する</button>
     </div>
   </div>
 </div>
@@ -2071,7 +2204,7 @@ function switchTab(name){
 // ── FAB ──
 function onFab(){
   if(currentTab==='groups'&&currentGroupId){openAddGroupTaskModal();return;}
-  const map={calendar:'addScheduleModal',collab:'addCollabModal',deals:'addDealModal',activity:'addActivityModal',revenue:'addRevenueModal',ideas:'addIdeaModal',groups:'createGroupModal',progress:'addProgressModal',events:'addEventModal'};
+  const map={calendar:'addScheduleModal',collab:'addCollabModal',deals:'addDealModal',activity:'addActivityModal',revenue:'addRevenueModal',ideas:'addIdeaModal',groups:'createGroupModal',progress:'addProgressModal',events:'addEventModal',projects:'addProjectModal'};
   const modal=map[currentTab];
   if(!modal)return;
   if(currentTab==='calendar'&&!document.getElementById('sch-date').value) document.getElementById('sch-date').value=todayISO();
@@ -2293,7 +2426,10 @@ async function loadEverything(){
   ideas=ideaRows.map(r=>({id:r.id,text:r.text,createdAt:new Date(r.created_at).getTime()}));
   tasks=taskRows.map(r=>({id:r.id,text:r.text,done:r.done,assigneeId:r.assignee_id||null,dueDate:r.due_date||null,createdAt:new Date(r.created_at).getTime()}));
   deals=dealRows.map(r=>({id:r.id,company:r.company,contact:r.contact,contactInfo:r.contact_info,status:r.status,amount:r.amount,memo:r.memo,deadline:r.deadline,createdAt:new Date(r.created_at).getTime()}));
-  activities=actRows.map(r=>({id:r.id,date:r.date,type:r.type,platform:r.platform,title:r.title,views:r.views,createdAt:new Date(r.created_at).getTime()}));
+  activities=actRows.map(r=>{
+    let extra={};try{extra=JSON.parse(r.memo||'{}');}catch(e){}
+    return{id:r.id,date:r.date,type:r.type,platform:r.platform,title:r.title,views:r.views,comments:extra.comments||null,duration:extra.duration||null,earning:extra.earning||null,createdAt:new Date(r.created_at).getTime()};
+  });
   collabPartners=partnerRows.map(r=>({id:r.id,name:r.name,platform:r.platform,contact:r.contact,date:r.collab_date,memo:r.memo,createdAt:new Date(r.created_at).getTime()}));
   teamMembers=memberRows.map(r=>({id:r.id,email:r.invited_email,role:r.role,status:r.status}));
   const ytRows=await fetchAll('schedule_youtube_links');
@@ -3033,13 +3169,28 @@ function renderActivity(){
   if(sEl){
     const types=['配信','動画投稿','ショート/リール','コラボ','ライブイベント'];const counts={};types.forEach(t=>{counts[t]=pItems.filter(a=>a.type===t).length;});
     const totalViews=pItems.reduce((s,a)=>s+(Number(a.views)||0),0);
-    sEl.innerHTML=types.filter(t=>counts[t]>0).map(t=>`<div class="stat"><div class="num" style="color:var(--${ACT_COLOR[t]||'gold'});">${counts[t]}</div><div class="lbl">${t}</div></div>`).join('')+(totalViews>0?`<div class="stat"><div class="num">${totalViews.toLocaleString()}</div><div class="lbl">総再生数</div></div>`:'');
+    const totalDuration=pItems.reduce((s,a)=>s+(Number(a.duration)||0),0);
+    sEl.innerHTML=types.filter(t=>counts[t]>0).map(t=>`<div class="stat"><div class="num" style="color:var(--${ACT_COLOR[t]||'gold'});">${counts[t]}</div><div class="lbl">${t}</div></div>`).join('')
+      +(totalViews>0?`<div class="stat"><div class="num">${totalViews.toLocaleString()}</div><div class="lbl">総再生数</div></div>`:'')
+      +(totalDuration>0?`<div class="stat"><div class="num">${Math.round(totalDuration/60*10)/10}h</div><div class="lbl">総配信時間</div></div>`:'');
   }
+  // トラッキンググラフ
+  setTimeout(()=>renderTrackingChart(pItems),0);
   const el=document.getElementById('activityList');const mBtn=document.getElementById('activityShowMoreBtn');if(!el)return;
   const sorted=[...pItems].sort((a,b)=>new Date(b.date)-new Date(a.date));
   if(!sorted.length){el.innerHTML='<div class="empty">この期間の実績はありません</div>';if(mBtn)mBtn.style.display='none';return;}
   const visible=activityShowAll?sorted:sorted.slice(0,ACT_PAGE);
-  el.innerHTML=visible.map(a=>`<div class="li"><div class="li-row"><div class="li-main"><div class="li-title">${escapeHtml(a.title||a.type)}</div><div class="li-meta">${fmtDate(a.date)} ・ ${escapeHtml(a.platform)}${a.views?' ・ '+Number(a.views).toLocaleString()+'再生':''}</div></div><span class="tag" style="color:var(--${ACT_COLOR[a.type]||'gold'});border-color:var(--${ACT_COLOR[a.type]||'gold'});">${a.type}</span></div><div class="li-acts"><button class="ghost sm" onclick="deleteActivity('${a.id}')">削除</button></div></div>`).join('');
+  el.innerHTML=visible.map(a=>`<div class="li"><div class="li-row"><div class="li-main">
+    <div class="li-title">${escapeHtml(a.title||a.type)}</div>
+    <div class="li-meta">${fmtDate(a.date)} ・ ${escapeHtml(a.platform)}</div>
+    <div class="act-detail-row">
+      ${a.views?`<span class="act-detail-badge">👁 ${Number(a.views).toLocaleString()}</span>`:''}
+      ${a.comments?`<span class="act-detail-badge">💬 ${Number(a.comments).toLocaleString()}</span>`:''}
+      ${a.duration?`<span class="act-detail-badge">⏱ ${a.duration}分</span>`:''}
+      ${a.earning?`<span class="act-detail-badge">💴 ¥${Number(a.earning).toLocaleString()}</span>`:''}
+    </div>
+  </div><span class="tag" style="color:var(--${ACT_COLOR[a.type]||'gold'});border-color:var(--${ACT_COLOR[a.type]||'gold'});">${a.type}</span></div>
+  <div class="li-acts"><button class="ghost sm" onclick="deleteActivity('${a.id}')">削除</button></div></div>`).join('');
   if(mBtn){if(sorted.length>ACT_PAGE){mBtn.style.display='block';mBtn.textContent=activityShowAll?'表示を減らす':`もっと見る(残り${sorted.length-ACT_PAGE}件)`;}else mBtn.style.display='none';}
 }
 function toggleActivityShowAll(){activityShowAll=!activityShowAll;renderActivity();}
@@ -3073,11 +3224,16 @@ async function addActivity(){
   }
   const date=document.getElementById('act-date').value;
   const title=document.getElementById('act-title').value.trim();
-  const views=document.getElementById('act-views').value;
+  const views=document.getElementById('act-views').value||null;
+  const comments=document.getElementById('act-comments').value||null;
+  const duration=document.getElementById('act-duration').value||null;
+  const earning=document.getElementById('act-earning').value||null;
   if(!date){showError('日付を入力してください');return;}
-  const{error}=await sb.from('activities').insert({user_id:user.id,date,type,platform,title:title||null,views:views||null});
+  // memo列にJSONで追加情報を保存
+  const extra=JSON.stringify({comments,duration,earning});
+  const{error}=await sb.from('activities').insert({user_id:user.id,date,type,platform,title:title||null,views:views||null,memo:extra});
   if(error){showError('保存に失敗しました: '+translateError(error.message));return;}
-  ['act-title','act-views'].forEach(id=>document.getElementById(id).value='');
+  ['act-title','act-views','act-comments','act-duration','act-earning'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const otherInp=document.getElementById('act-platform-other');
   if(otherInp){otherInp.value='';otherInp.style.display='none';}
   document.getElementById('act-platform').value='YouTube';
@@ -3330,7 +3486,235 @@ async function deleteDeal(id){
   await loadEverything();await loadDealLogs();renderDeals();closeModal('dealDetailModal');
 }
 
-// ── COLLAB CANDIDATES ──
+// ── TRACKING（視聴者数トラッキング） ──
+let trackingChart=null;
+
+function renderTrackingChart(items){
+  const chartCard=document.getElementById('trackingChartCard');
+  const canvas=document.getElementById('trackingChart');
+  const bestEl=document.getElementById('trackingBest');
+  if(!chartCard||!canvas)return;
+  const withViews=items.filter(a=>a.views);
+  chartCard.style.display=withViews.length>=2?'block':'none';
+  if(withViews.length<2)return;
+  const sorted=[...withViews].sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(-20);
+  const labels=sorted.map(a=>fmtDate(a.date).slice(5));
+  const views=sorted.map(a=>Number(a.views)||0);
+  const comments=sorted.map(a=>Number(a.comments)||0);
+  const ctx=canvas.getContext('2d');
+  canvas.width=canvas.offsetWidth||320;canvas.height=80;
+  const w=canvas.width,h=canvas.height,pad=6,bottom=20;
+  ctx.clearRect(0,0,w,h);
+  const maxV=Math.max(...views,1);
+  const maxC=Math.max(...comments,1);
+  const drawLine=(data,maxVal,color)=>{
+    if(!data.some(v=>v>0))return;
+    const step=(w-pad*2)/(data.length-1||1);
+    ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.lineJoin='round';
+    data.forEach((v,i)=>{
+      const x=pad+i*step,y=h-bottom-(v/maxVal)*(h-bottom-pad);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    data.forEach((v,i)=>{
+      if(v===0)return;
+      const x=pad+i*step,y=h-bottom-(v/maxVal)*(h-bottom-pad);
+      ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
+    });
+  };
+  drawLine(views,maxV,'rgba(255,107,91,.9)');
+  drawLine(comments,maxC,'rgba(69,214,176,.7)');
+  // x軸ラベル
+  const step=(w-pad*2)/(labels.length-1||1);
+  ctx.fillStyle='#8C8FA3';ctx.font='9px Inter,sans-serif';ctx.textAlign='center';
+  labels.forEach((l,i)=>{if(i%(Math.ceil(labels.length/5))===0)ctx.fillText(l,pad+i*step,h-4);});
+  // ベスト
+  const best=sorted.reduce((a,b)=>(Number(b.views)||0)>(Number(a.views)||0)?b:a,sorted[0]);
+  if(best&&best.views) bestEl.textContent=`🏆 最高: ${fmtDate(best.date)} "${escapeHtml(best.title||best.type)}" — ${Number(best.views).toLocaleString()}`;
+}
+
+// ── SCRIPT（配信スクリプト） ──
+let scripts=[];
+
+async function loadScripts(){
+  const rows=await fetchAll('ideas').catch(()=>[]);
+  scripts=rows.filter(r=>r.type==='script').map(r=>({
+    id:r.id,title:r.title||'無題',body:r.text||'',
+    createdAt:new Date(r.created_at).getTime()
+  })).sort((a,b)=>b.createdAt-a.createdAt);
+}
+
+function renderScripts(){
+  const el=document.getElementById('scriptList');if(!el)return;
+  if(!scripts.length){el.innerHTML='<div class="empty">スクリプトを追加してください</div>';return;}
+  el.innerHTML=scripts.map(s=>`
+    <div class="script-card">
+      <div class="script-card-hd" onclick="toggleScript('${s.id}')">
+        <div>
+          <div class="script-card-title">📝 ${escapeHtml(s.title)}</div>
+          <div class="script-card-meta">${new Date(s.createdAt).toLocaleDateString('ja-JP')}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <button class="ghost sm" onclick="event.stopPropagation();copyScript('${s.id}')">コピー</button>
+          <button class="ghost sm" onclick="event.stopPropagation();deleteScript('${s.id}')">削除</button>
+          <span style="color:var(--dim);font-size:12px;">▾</span>
+        </div>
+      </div>
+      <div class="script-editor" id="script-editor-${s.id}">
+        <textarea class="script-textarea" id="script-body-${s.id}" onchange="updateScript('${s.id}',this.value)">${escapeHtml(s.body)}</textarea>
+        <div style="font-size:11px;color:var(--dim);margin-top:4px;">変更は自動保存されます</div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleScript(id){
+  const el=document.getElementById(`script-editor-${id}`);
+  if(el) el.classList.toggle('open');
+}
+
+function insertScriptSyntax(syntax){
+  const ta=document.getElementById('script-body');
+  if(!ta)return;
+  const pos=ta.selectionStart;
+  const val=ta.value;
+  ta.value=val.slice(0,pos)+syntax+val.slice(pos);
+  ta.selectionStart=ta.selectionEnd=pos+syntax.length;
+  ta.focus();
+}
+
+async function saveScript(){
+  const{data:{user}}=await sb.auth.getUser();
+  const title=document.getElementById('script-title').value.trim()||'無題スクリプト';
+  const body=document.getElementById('script-body').value;
+  const{error}=await sb.from('ideas').insert({user_id:user.id,title,text:body,type:'script'});
+  if(error){showError('保存に失敗しました');return;}
+  document.getElementById('script-title').value='';
+  document.getElementById('script-body').value='';
+  closeModal('addScriptModal');
+  await loadScripts();renderScripts();showToast('スクリプトを保存しました');
+}
+
+async function updateScript(id,body){
+  await sb.from('ideas').update({text:body}).eq('id',id);
+  const s=scripts.find(x=>x.id===id);if(s)s.body=body;
+}
+
+async function copyScript(id){
+  const s=scripts.find(x=>x.id===id);if(!s)return;
+  const onS=()=>showToast('コピーしました');
+  if(navigator.clipboard) navigator.clipboard.writeText(s.body).then(onS).catch(()=>fallbackCopy(s.body,onS));
+  else fallbackCopy(s.body,onS);
+}
+
+async function deleteScript(id){
+  if(!confirm('このスクリプトを削除しますか?'))return;
+  await sb.from('ideas').delete().eq('id',id);
+  await loadScripts();renderScripts();
+}
+
+// ── PROJECTS（企画管理） ──
+let projects=[];
+const PROJ_COLS=['アイデア','準備中','進行中','完了'];
+const PROJ_COL_ID={アイデア:'idea',準備中:'ready',進行中:'wip',完了:'done'};
+const PROJ_CAT_COLOR={動画:'blue',配信:'live',コラボ:'calm',グッズ:'gold',その他:'dim'};
+
+async function loadProjects(){
+  const rows=await fetchAll('ideas').catch(()=>[]);
+  projects=rows.filter(r=>r.type==='project').map(r=>{
+    let meta={};try{meta=JSON.parse(r.memo||'{}');}catch(e){}
+    return{id:r.id,title:r.text,cat:r.title||'その他',status:r.category||'アイデア',memo:meta.memo||'',deadline:meta.deadline||null,createdAt:new Date(r.created_at).getTime()};
+  });
+}
+
+function renderProjects(){
+  PROJ_COLS.forEach(col=>{
+    const colId=PROJ_COL_ID[col];
+    const el=document.getElementById(`proj-cards-${colId}`);if(!el)return;
+    const items=projects.filter(p=>p.status===col).sort((a,b)=>b.createdAt-a.createdAt);
+    if(!items.length){el.innerHTML='<div style="font-size:11.5px;color:var(--dim);text-align:center;padding:8px 0;">なし</div>';return;}
+    const today=new Date();today.setHours(0,0,0,0);
+    el.innerHTML=items.map(p=>{
+      const dueDiff=p.deadline?Math.floor((new Date(p.deadline+'T00:00')-today)/86400000):null;
+      const dueLabel=dueDiff!==null?(dueDiff<0?`${Math.abs(dueDiff)}日超過`:dueDiff===0?'今日':'あと'+dueDiff+'日'):'';
+      const dueColor=dueDiff!==null&&dueDiff<=0?'var(--live)':dueDiff!==null&&dueDiff<=3?'var(--gold)':'var(--dim)';
+      return`<div class="proj-card" onclick="openEditProjectModal('${p.id}')">
+        <div class="pk-title">${escapeHtml(p.title)}</div>
+        <div class="pk-meta">
+          <span class="pk-tag" style="color:var(--${PROJ_CAT_COLOR[p.cat]||'dim'});border-color:var(--${PROJ_CAT_COLOR[p.cat]||'dim'});">${p.cat}</span>
+          ${dueLabel?`<span style="color:${dueColor};font-size:10px;">📅 ${dueLabel}</span>`:''}
+        </div>
+        ${p.memo?`<div style="font-size:11px;color:var(--dim);margin-top:4px;line-height:1.5;">${escapeHtml(p.memo.slice(0,40))}${p.memo.length>40?'…':''}</div>`:''}
+      </div>`;
+    }).join('');
+  });
+}
+
+function selectProjCat(btn,cat){
+  document.querySelectorAll('#projCatChips .chip').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');document.getElementById('proj-cat').value=cat;
+}
+
+function openAddProjectModal(status='アイデア'){
+  document.getElementById('proj-title').value='';
+  document.getElementById('proj-memo').value='';
+  document.getElementById('proj-deadline').value='';
+  document.getElementById('proj-status').value=status;
+  document.getElementById('proj-cat').value='動画';
+  document.querySelectorAll('#projCatChips .chip').forEach((b,i)=>b.classList.toggle('act',i===0));
+  document.getElementById('addProjectModalTitle').textContent=`企画を追加（${status}）`;
+  openModal('addProjectModal');
+}
+
+function openEditProjectModal(id){
+  const p=projects.find(x=>x.id===id);if(!p)return;
+  document.getElementById('proj-title').value=p.title;
+  document.getElementById('proj-memo').value=p.memo;
+  document.getElementById('proj-deadline').value=p.deadline||'';
+  document.getElementById('proj-status').value=p.status;
+  document.getElementById('proj-cat').value=p.cat;
+  document.querySelectorAll('#projCatChips .chip').forEach(b=>b.classList.toggle('act',b.textContent===p.cat));
+  document.getElementById('addProjectModalTitle').textContent='企画を編集';
+  // 保存ボタンをupdateに切替
+  const btn=document.querySelector('#addProjectModal .primary');
+  if(btn){btn.textContent='更新する';btn.onclick=()=>updateProject(id);}
+  openModal('addProjectModal');
+}
+
+async function addProject(){
+  const{data:{user}}=await sb.auth.getUser();
+  const title=document.getElementById('proj-title').value.trim();
+  if(!title){showError('企画名を入力してください');return;}
+  const cat=document.getElementById('proj-cat').value;
+  const status=document.getElementById('proj-status').value;
+  const memo=document.getElementById('proj-memo').value.trim();
+  const deadline=document.getElementById('proj-deadline').value||null;
+  const{error}=await sb.from('ideas').insert({
+    user_id:user.id,text:title,title:cat,
+    category:status,memo:JSON.stringify({memo,deadline}),type:'project'
+  });
+  if(error){showError('保存に失敗しました');return;}
+  const btn=document.querySelector('#addProjectModal .primary');
+  if(btn){btn.textContent='追加する';btn.onclick=addProject;}
+  closeModal('addProjectModal');
+  await loadProjects();renderProjects();showToast('企画を追加しました');
+}
+
+async function updateProject(id){
+  const title=document.getElementById('proj-title').value.trim();
+  if(!title){showError('企画名を入力してください');return;}
+  const cat=document.getElementById('proj-cat').value;
+  const status=document.getElementById('proj-status').value;
+  const memo=document.getElementById('proj-memo').value.trim();
+  const deadline=document.getElementById('proj-deadline').value||null;
+  await sb.from('ideas').update({
+    text:title,title:cat,category:status,
+    memo:JSON.stringify({memo,deadline})
+  }).eq('id',id);
+  const btn=document.querySelector('#addProjectModal .primary');
+  if(btn){btn.textContent='追加する';btn.onclick=addProject;}
+  closeModal('addProjectModal');
+  await loadProjects();renderProjects();showToast('企画を更新しました');
+}
 let collabCandidates=[];
 const CAND_STATUS_COLOR={候補:'var(--dim)',打診済み:'var(--gold)',決定:'var(--calm)'};
 
@@ -3626,12 +4010,12 @@ async function deleteCollabPartner(id){if(!confirm('このコラボ相手を削�
 
 // ── ONBOARDING & JOB PRESET ──
 const JOB_PRESETS={
-  streamer:{label:'配信者・VTuber',tabs:['home','calendar','collab','deals','activity','revenue','ideas','announce','groups','settings']},
+  streamer:{label:'配信者・VTuber',tabs:['home','calendar','collab','deals','activity','revenue','ideas','projects','announce','groups','settings']},
   illustrator:{label:'イラストレーター',tabs:['home','calendar','deals','activity','revenue','ideas','progress','announce','groups','settings']},
   musician:{label:'音楽活動者',tabs:['home','calendar','collab','deals','activity','revenue','ideas','progress','announce','groups','settings']},
   doujin:{label:'同人作家・ライター',tabs:['home','calendar','deals','revenue','ideas','progress','events','groups','settings']},
   liver:{label:'ライバー',tabs:['home','calendar','collab','activity','revenue','ideas','announce','settings']},
-  custom:{label:'カスタム',tabs:['home','calendar','collab','deals','activity','revenue','ideas','progress','events','announce','groups','settings']},
+  custom:{label:'カスタム',tabs:['home','calendar','collab','deals','activity','revenue','ideas','projects','progress','events','announce','groups','settings']},
 };
 
 // カスタマイズ可能なタブ定義
@@ -3642,6 +4026,7 @@ const CUSTOMIZABLE_TABS=[
   {id:'activity',label:'📊 実績',required:false},
   {id:'revenue',label:'💰 収支',required:false},
   {id:'ideas',label:'💡 ネタ帳',required:false},
+  {id:'projects',label:'🗂️ 企画管理',required:false},
   {id:'progress',label:'📐 制作進捗',required:false},
   {id:'events',label:'🎪 出展管理',required:false},
   {id:'announce',label:'📣 告知文',required:false},
@@ -3697,7 +4082,7 @@ function updatePcAddLabels(){
     calendar:'＋ 予定を追加',collab:'＋ コラボ相手を追加',deals:'＋ 案件を追加',
     activity:'＋ 実績を記録',revenue:'＋ 収支を記録',ideas:'＋ タスク・ネタを追加',
     progress:'＋ プロジェクトを追加',events:'＋ 出展を追加',announce:null,
-    groups:'＋ グループを作成',home:null,settings:null
+    projects:'＋ 企画を追加',groups:'＋ グループを作成',home:null,settings:null
   };
   window.dynamicPcLabels=ALL_LABELS;
 }
@@ -4002,7 +4387,7 @@ async function checkTodayScheduleNotification(){
   }catch(e){console.warn('Discord通知エラー:',e);}
 }
 const GUIDE_PAGES=['g-home','g-cal','g-collab','g-deals','g-act','g-rev','g-ideas','g-groups','g-team','g-progress','g-events','g-announce','g-sec'];
-const GUIDE_TAB_MAP={home:'g-home',calendar:'g-cal',collab:'g-collab',deals:'g-deals',activity:'g-act',revenue:'g-rev',ideas:'g-ideas',groups:'g-groups',settings:'g-team',progress:'g-progress',events:'g-events',announce:'g-announce'};
+const GUIDE_TAB_MAP={home:'g-home',calendar:'g-cal',collab:'g-collab',deals:'g-deals',activity:'g-act',revenue:'g-rev',ideas:'g-ideas',groups:'g-groups',settings:'g-team',progress:'g-progress',events:'g-events',announce:'g-announce',projects:'g-home'};
 let currentGuidePage=0;
 
 function switchGuide(btn, pageId){
@@ -4642,7 +5027,7 @@ async function init(){
   const{data:{user}}=await sb.auth.getUser();
   myUserId=user?.id||null;
   await loadEverything();
-  await Promise.all([loadDealLogs(),loadTeamLogs(),loadCollabReviews(),loadCollabRequests(),loadGroups(),loadCollabCandidates(),loadProgress(),loadEvents()]);
+  await Promise.all([loadDealLogs(),loadTeamLogs(),loadCollabReviews(),loadCollabRequests(),loadGroups(),loadCollabCandidates(),loadProgress(),loadEvents(),loadScripts(),loadProjects()]);
   updateTaskAssigneeSelect();
   const showGroup=teamMembers.length>0&&(currentPlan==='pro');
   setGate('groupScheduleGated',showGroup,'グループスケジュールはプロプランでメンバーを招待すると表示されます。');
@@ -4654,7 +5039,7 @@ async function init(){
   renderCollabPartners();renderCollabStats();renderCollabRequests();renderCollabCandidates();
   renderTeamMembers();renderTeamLogs();
   renderWeekGrid();renderGroupList();
-  renderProgress();renderEvents();renderChecklist();
+  renderProgress();renderEvents();renderChecklist();renderScripts();renderProjects();
   checkFirstVisit();
   checkTodayScheduleNotification();
 }
