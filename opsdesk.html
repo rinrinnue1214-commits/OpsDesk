@@ -569,7 +569,7 @@ input[type=number]{-moz-appearance:textfield;}
   <div class="card">
     <div class="card-hd">今月の目標 <span class="link-btn" onclick="switchTab('settings')">変更 →</span></div>
     <div class="goal-row">
-      <div class="goal-hd"><span class="lbl">配信回数</span><span class="val" id="goalStreamVal">0 / 0回</span></div>
+      <div class="goal-hd"><span class="lbl">活動回数</span><span class="val" id="goalStreamVal">0 / 0回</span></div>
       <div class="prog-track"><div class="prog-fill" id="goalStreamBar"></div></div>
     </div>
     <div class="goal-row" style="margin-bottom:0;">
@@ -582,7 +582,7 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="stat-row" id="homeActivityStats" style="grid-template-columns:repeat(4,1fr);"></div>
   </div>
   <div class="card">
-    <div class="card-hd">配信・活動回数(直近6ヶ月)</div>
+    <div class="card-hd">配信・活動回数（直近6ヶ月）</div>
     <div class="chart-row" id="chartStreams"></div>
   </div>
   <div class="card">
@@ -877,7 +877,7 @@ input[type=number]{-moz-appearance:textfield;}
       <div class="page-title">グループ</div>
     </div>
     <div class="gated" id="groupsGated">
-      <p class="hint" style="margin:0 0 10px;">チーム・コラボ用・企画用など、用途別にグループを作れます。メンバーを招待すると共有スペースで予定・タスクを管理できます。</p>
+      <p class="hint" style="margin:0 0 10px;">相方・コラボ仲間など<strong>対等な立場で一緒に活動する人</strong>と共有スペースを作れます。全員が予定・タスクを追加・編集できます。用途別にグループを複数作成可能です。<br>※ マネージャーやスタッフへの権限付与は「設定」→「チームメンバー」から行ってください。</p>
       <div id="groupCards"><div class="empty">まだグループがありません</div></div>
     </div>
   </div>
@@ -984,7 +984,7 @@ input[type=number]{-moz-appearance:textfield;}
   <div class="gated" id="teamGated">
     <div class="card">
       <div class="card-hd">チームメンバー（プロ）</div>
-      <p class="hint" style="margin-top:-6px;">マネージャーを招待して案件・予定を共同管理できます。</p>
+      <p class="hint" style="margin-top:-6px;">マネージャー・スタッフなど<strong>あなたの活動をサポートする人</strong>を招待できます。招待された相手はあなたの予定・案件を閲覧・編集できます。<br>※ 相方など対等な立場での共同作業は「グループ機能」をご利用ください。</p>
       <div id="memberList"><div class="empty">メンバーはいません</div></div>
     </div>
     <div class="card">
@@ -1012,10 +1012,10 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="card-hd coll-hd closed" onclick="toggleColl(this,'profileBody')">プロフィール・目標 <span class="chev">▾</span></div>
     <div class="coll-body closed" id="profileBody">
       <label>表示名</label>
-      <input type="text" id="profile-name" placeholder="例:配信者名">
+      <input type="text" id="profile-name" placeholder="例:〇〇チャンネル・〇〇（配信者名）">
       <button class="primary full" onclick="saveProfile()" style="margin-bottom:14px;">保存</button>
       <div class="row">
-        <div><label>目標配信回数(月)</label><input type="number" id="goal-stream-target" placeholder="例:12"></div>
+        <div><label>目標活動回数（配信・投稿など/月）</label><input type="number" id="goal-stream-target" placeholder="例:12"></div>
         <div><label>目標収益(月・円)</label><input type="number" id="goal-revenue-target" placeholder="例:50000"></div>
       </div>
       <button class="primary full" onclick="saveGoals()">目標を保存</button>
@@ -1075,6 +1075,10 @@ input[type=number]{-moz-appearance:textfield;}
       <button class="guide-tab" onclick="switchGuide(this,'g-rev')">💰 収支</button>
       <button class="guide-tab" onclick="switchGuide(this,'g-ideas')">💡 ネタ帳</button>
       <button class="guide-tab" onclick="switchGuide(this,'g-groups')">👥 グループ</button>
+      <button class="guide-tab" onclick="switchGuide(this,'g-team')">⚙️ チーム</button>
+      <button class="guide-tab" onclick="switchGuide(this,'g-progress')">📐 制作進捗</button>
+      <button class="guide-tab" onclick="switchGuide(this,'g-events')">🎪 出展管理</button>
+      <button class="guide-tab" onclick="switchGuide(this,'g-announce')">📣 告知文</button>
       <button class="guide-tab" onclick="switchGuide(this,'g-sec')">🔒 セキュリティ</button>
     </div>
 
@@ -1082,24 +1086,25 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="guide-page active" id="g-home">
       <h3>🏠 ホーム</h3>
       <p>活動全体をひと目で把握するダッシュボードです。毎日ここを起点に動けるように設計しています。</p>
-      <div class="guide-step"><div class="sn">1</div><div class="st"><strong>今月の目標</strong>：配信回数・収益の目標を設定すると進捗バーが表示されます。設定タブから変更できます。</div></div>
-      <div class="guide-step"><div class="sn">2</div><div class="st"><strong>今月の実績</strong>：実績タブで記録した配信・動画投稿・コラボの件数が自動集計されます。</div></div>
-      <div class="guide-step"><div class="sn">3</div><div class="st"><strong>グラフ</strong>：直近6ヶ月の活動回数・収益の推移が確認できます。</div></div>
-      <div class="guide-step"><div class="sn">4</div><div class="st"><strong>ペース管理</strong>：直近7日間の完了活動数を見て、無理していないか確認できます。</div></div>
-      <div class="guide-step"><div class="sn">5</div><div class="st"><strong>AIレポート</strong>（スタンダード以上）：活動・収支データをもとにAIが振り返りを自動生成します。</div></div>
-      <div class="guide-tip"><span class="ti">💡</span>次の予定はヘッダー右の表示で常に確認できます。</div>
+      <div class="guide-step"><div class="sn">1</div><div class="st"><strong>今月の目標</strong>：活動回数・収益の目標を設定すると進捗バーが表示されます。設定タブの「プロフィール・目標」から変更できます。</div></div>
+      <div class="guide-step"><div class="sn">2</div><div class="st"><strong>今月の実績</strong>：実績タブで記録した活動（配信・投稿・コラボなど）の件数が自動集計されます。</div></div>
+      <div class="guide-step"><div class="sn">3</div><div class="st"><strong>活動回数グラフ</strong>：直近6ヶ月の活動回数・収益の推移が棒グラフで確認できます。継続のモチベーション管理に。</div></div>
+      <div class="guide-step"><div class="sn">4</div><div class="st"><strong>ペース管理</strong>：直近7日間の活動ペースを確認できます。無理していないかの目安に使えます。</div></div>
+      <div class="guide-step"><div class="sn">5</div><div class="st"><strong>AIレポート</strong>（スタンダード以上）：直近の活動・収支データをもとにAIが振り返りレポートを自動生成します。</div></div>
+      <div class="guide-tip"><span class="ti">💡</span>ヘッダーの「次の予定」表示をタップするとカレンダータブに飛べます。</div>
     </div>
 
     <!-- カレンダー -->
     <div class="guide-page" id="g-cal">
       <h3>📅 カレンダー</h3>
-      <p>配信・編集・打ち合わせなど全ての予定をここで管理します。</p>
-      <div class="guide-step"><div class="sn">1</div><div class="st"><strong>予定を追加</strong>：右上の「＋ 予定を追加」ボタンまたはFABから追加します。種類・タイトル・日時・備考を入力できます。</div></div>
-      <div class="guide-step"><div class="sn">2</div><div class="st"><strong>カレンダー</strong>：予定がある日にはドットが表示されます。タップすると日付で絞り込めます。</div></div>
-      <div class="guide-step"><div class="sn">3</div><div class="st"><strong>完了にする</strong>：配信が終わったら「配信完了」ボタンをタップします。実績グラフに反映されます。</div></div>
+      <p>配信・制作・打ち合わせ・出展など全ての予定をここで管理します。</p>
+      <div class="guide-step"><div class="sn">1</div><div class="st"><strong>予定を追加</strong>：右上の「＋ 予定を追加」またはFABから追加します。種類（配信/投稿・打ち合わせ・編集・撮影・制作・練習・その他）を選んでタイトル・日時・備考を入力できます。</div></div>
+      <div class="guide-step"><div class="sn">2</div><div class="st"><strong>カレンダー</strong>：予定がある日にはドットが表示されます。日付をタップすると絞り込み表示になります。</div></div>
+      <div class="guide-step"><div class="sn">3</div><div class="st"><strong>完了にする</strong>：配信・作業が終わったら「完了」ボタンをタップします。実績グラフに反映されます。</div></div>
       <div class="guide-step"><div class="sn">4</div><div class="st"><strong>備考欄</strong>：当日の内容メモや段取りを書いておけます。自分だけが見る個人メモです。</div></div>
-      <div class="guide-tip"><span class="ti">💡</span>「その他」を選ぶと勉強・翻訳作業など自由に種類を設定できます。</div>
-      <div class="guide-warn"><span class="ti">⚠️</span>Googleカレンダー連携は現在Google審査中のため利用者を限定しています。一般公開後に順次ご案内します。</div>
+      <div class="guide-step"><div class="sn">5</div><div class="st"><strong>iCalエクスポート</strong>：GoogleカレンダーやAppleカレンダーにインポートできるファイルを出力できます。</div></div>
+      <div class="guide-tip"><span class="ti">💡</span>「その他」を選ぶと勉強・翻訳作業・レコーディングなど自由に種類を設定できます。</div>
+      <div class="guide-warn"><span class="ti">⚠️</span>Googleカレンダー直接連携は現在Google審査中のため利用者を限定しています。一般公開後に順次ご案内します。</div>
     </div>
 
     <!-- コラボ -->
@@ -1129,11 +1134,11 @@ input[type=number]{-moz-appearance:textfield;}
     <!-- 実績 -->
     <div class="guide-page" id="g-act">
       <h3>📊 実績</h3>
-      <p>YouTube・Twitch・TikTok・Xなど複数プラットフォームの配信・投稿実績をまとめて記録します。</p>
-      <div class="guide-step"><div class="sn">1</div><div class="st"><strong>実績を記録</strong>：種類（配信・動画投稿・ショート・コラボ・ライブ）とプラットフォームを選んで記録します。タイトルや再生数も入力できます。</div></div>
-      <div class="guide-step"><div class="sn">2</div><div class="st"><strong>その他のプラットフォーム</strong>：チップにない場合は「その他」を選んで自由入力できます。</div></div>
+      <p>YouTube・Twitch・TikTok・Xなど複数プラットフォームの活動実績をまとめて記録します。配信・動画投稿・楽曲リリース・コラボなどあらゆる活動に対応しています。</p>
+      <div class="guide-step"><div class="sn">1</div><div class="st"><strong>実績を記録</strong>：種類（配信・動画投稿・ショート・コラボ・ライブなど）とプラットフォームを選んで記録します。タイトルや再生数・視聴者数も入力できます。</div></div>
+      <div class="guide-step"><div class="sn">2</div><div class="st"><strong>その他のプラットフォーム</strong>：チップにない場合は「その他」を選んで自由入力できます（例:ニコニコ・Spotify・Pixivなど）。</div></div>
       <div class="guide-step"><div class="sn">3</div><div class="st"><strong>期間フィルター</strong>：今月・先月・今年・全期間で絞り込んで集計を確認できます。</div></div>
-      <div class="guide-step"><div class="sn">4</div><div class="st"><strong>コラボ実績との連携</strong>：種類を「コラボ」にしてタイトルにコラボ相手の名前を含めると、コラボタブの相手詳細画面に自動で紐付きます。</div></div>
+      <div class="guide-step"><div class="sn">4</div><div class="st"><strong>コラボ実績との連携</strong>：種類を「コラボ」にしてタイトルにコラボ相手の名前を含めると、コラボタブの相手詳細に自動で紐付きます。</div></div>
       <div class="guide-tip"><span class="ti">💡</span>ホームの「今月の実績」サマリーはこのタブのデータから自動集計されます。毎回の配信・投稿後に記録する習慣をつけると効果的です。</div>
     </div>
 
@@ -1163,18 +1168,114 @@ input[type=number]{-moz-appearance:textfield;}
     <!-- グループ -->
     <div class="guide-page" id="g-groups">
       <h3>👥 グループ（プロ）</h3>
-      <p>相方・アシスタント・コラボメンバーと共有スペースを作れます。グループは複数作成可能です。</p>
-      <div class="guide-step"><div class="sn">1</div><div class="st"><strong>グループを作成</strong>：「＋ グループを作成」から名前と絵文字アイコンを設定します。用途別に複数作れます（例：レギュラーチーム・コラボ企画用・撮影グループ）。</div></div>
-      <div class="guide-step"><div class="sn">2</div><div class="st"><strong>メンバーを招待</strong>：グループ内の「メンバー」→「招待リンクをコピー」でURLを共有します。相手がリンクを開いてログイン（または新規登録）すると自動で参加できます。</div></div>
-      <div class="guide-step"><div class="sn">3</div><div class="st"><strong>共有スケジュール</strong>：グループ内の「今週のスケジュール」で全員の予定を週単位で確認できます。自分の個人予定も表示されます。</div></div>
-      <div class="guide-step"><div class="sn">4</div><div class="st"><strong>共有タスク</strong>：グループ内でタスクを追加・担当者指定・完了管理できます。誰が追加したか（by 名前）も記録されます。</div></div>
-      <div class="guide-warn"><span class="ti">⚠️</span>招待リンクを受け取った人は誰でもグループに参加できます。信頼できる相手にのみリンクを共有してください。不要になったメンバーはグループ設定から削除できます。</div>
+      <p>グループ機能と設定タブのチーム機能は似ていますが、用途が異なります。まず違いを確認してください。</p>
+
+      <!-- 使い分け比較 -->
+      <div style="background:var(--panel2);border-radius:10px;padding:12px;margin-bottom:14px;font-size:12.5px;">
+        <div style="font-weight:600;margin-bottom:8px;font-size:13px;">どちらを使う？</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div style="background:rgba(69,214,176,.08);border:1px solid rgba(69,214,176,.2);border-radius:8px;padding:10px;">
+            <div style="color:var(--calm);font-weight:600;margin-bottom:6px;">👥 グループ機能</div>
+            <div style="color:var(--dim);line-height:1.7;">相方・コラボ仲間と<strong style="color:var(--text);">対等に共同作業</strong>したいとき。全員が予定・タスクを追加・編集できる共有スペース。</div>
+            <div style="margin-top:6px;font-size:11px;color:var(--dim);">例：相方との活動・コラボユニット・制作チーム</div>
+          </div>
+          <div style="background:rgba(242,184,75,.08);border:1px solid rgba(242,184,75,.2);border-radius:8px;padding:10px;">
+            <div style="color:var(--gold);font-weight:600;margin-bottom:6px;">⚙️ チーム機能（設定）</div>
+            <div style="color:var(--dim);line-height:1.7;">マネージャーやスタッフに<strong style="color:var(--text);">自分のOpsDesk</strong>を見せたいとき。相手はあなたのデータを閲覧・補佐できる。</div>
+            <div style="margin-top:6px;font-size:11px;color:var(--dim);">例：事務所スタッフ・アシスタント・マネージャー</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:11px;color:var(--dim);font-weight:600;letter-spacing:.5px;margin-bottom:8px;">グループ機能の使い方</div>
+      <div class="guide-step"><div class="sn">1</div><div class="st"><strong>グループを作成</strong>：グループタブの「＋ グループを作成」から名前と絵文字を設定します。用途別に複数作れます（例：🎮レギュラーチーム・🎬コラボ企画用）。</div></div>
+      <div class="guide-step"><div class="sn">2</div><div class="st"><strong>メンバーを招待</strong>：グループ内「メンバー」→「招待リンクをコピー」でURLをLINEやDiscordで送ります。相手がリンクを開いてOpsDesk にログインすると自動で参加されます。</div></div>
+      <div class="guide-step"><div class="sn">3</div><div class="st"><strong>共有スケジュール</strong>：全員の予定が週間グリッドで確認できます。「＋ 共有予定を追加」でグループ全員に関係する予定（打ち合わせなど）を追加できます。</div></div>
+      <div class="guide-step"><div class="sn">4</div><div class="st"><strong>共有タスク</strong>：「誰がやるか」を指定してタスクを追加できます。担当者名と追加者名が記録されるので、やり忘れや二重作業を防げます。</div></div>
+      <div class="guide-step"><div class="sn">5</div><div class="st"><strong>グループを削除・メンバーを外す</strong>：グループ設定から行えます。削除するとそのグループの予定・タスクも全て削除されます。</div></div>
+
+      <div class="guide-tip"><span class="ti">💡</span>チーム機能は設定タブの下の方にあります。マネージャーやスタッフへの権限付与はそちらから行ってください。</div>
+      <div class="guide-warn"><span class="ti">⚠️</span>招待リンクを知っている人なら誰でも参加できます。SNSへの公開投稿ではなく、直接信頼できる相手にのみ送ってください。</div>
+    </div>
+
+    <!-- チーム機能 -->
+    <div class="guide-page" id="g-team">
+      <h3>⚙️ チーム機能（設定タブ・プロ）</h3>
+      <p>マネージャーやスタッフに自分のOpsDesk を補佐してもらうための機能です。グループ機能とは目的が違います。</p>
+
+      <div style="background:var(--panel2);border-radius:10px;padding:12px;margin-bottom:14px;font-size:12.5px;">
+        <div style="font-weight:600;margin-bottom:8px;">チーム機能でできること・できないこと</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--calm);font-weight:700;flex-shrink:0;">✓</span><span style="color:var(--dim);">マネージャーがあなたの予定・案件を<strong style="color:var(--text);">閲覧・編集</strong>できる</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--calm);font-weight:700;flex-shrink:0;">✓</span><span style="color:var(--dim);">権限を「マネージャー」「モデレーター」「閲覧者」で使い分けられる</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--calm);font-weight:700;flex-shrink:0;">✓</span><span style="color:var(--dim);">誰が何をしたか活動ログで確認できる</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--live);font-weight:700;flex-shrink:0;">✗</span><span style="color:var(--dim);">メンバーが独自のデータを追加することはできない（あくまであなたのデータの閲覧・編集）</span></div>
+          <div style="display:flex;gap:8px;align-items:flex-start;"><span style="color:var(--live);font-weight:700;flex-shrink:0;">✗</span><span style="color:var(--dim);">対等な立場での共同作業には向かない（→グループ機能を使う）</span></div>
+        </div>
+      </div>
+
+      <div style="font-size:11px;color:var(--dim);font-weight:600;letter-spacing:.5px;margin-bottom:8px;">権限の種類</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">
+        <div style="background:var(--panel2);border-radius:8px;padding:10px;font-size:12.5px;">
+          <span style="color:var(--gold);font-weight:600;">📋 マネージャー</span>
+          <span style="color:var(--dim);margin-left:8px;">予定・案件の閲覧と編集ができます。スケジュール管理を任せたい相手向け。</span>
+        </div>
+        <div style="background:var(--panel2);border-radius:8px;padding:10px;font-size:12.5px;">
+          <span style="color:var(--purple);font-weight:600;">🛡️ モデレーター</span>
+          <span style="color:var(--dim);margin-left:8px;">予定の閲覧・編集のみ。案件は見えません。スタッフや補佐向け。</span>
+        </div>
+        <div style="background:var(--panel2);border-radius:8px;padding:10px;font-size:12.5px;">
+          <span style="color:var(--dim);font-weight:600;">👀 閲覧者</span>
+          <span style="color:var(--dim);margin-left:8px;">見るだけ。編集はできません。確認だけしてほしい相手向け。</span>
+        </div>
+      </div>
+
+      <div class="guide-step"><div class="sn">1</div><div class="st"><strong>招待する</strong>：設定タブ→「チームメンバー」→「＋ メンバーを招待する」からメールアドレスと権限を指定します。</div></div>
+      <div class="guide-step"><div class="sn">2</div><div class="st"><strong>招待リンク</strong>：「招待リンクをコピー」ボタンでURLを発行して送ることもできます。相手がログインすると自動でチームに追加されます。</div></div>
+      <div class="guide-step"><div class="sn">3</div><div class="st"><strong>権限を変更</strong>：「権限変更」ボタンからいつでも変更できます。不要になったメンバーは「削除」で外せます。</div></div>
+      <div class="guide-step"><div class="sn">4</div><div class="st"><strong>活動ログ</strong>：招待・削除などの操作履歴が「活動ログ」に残ります。誰が何をしたか確認できます。</div></div>
+
+      <div class="guide-tip"><span class="ti">💡</span>対等な立場で一緒に活動する相手（相方・コラボ仲間）にはグループ機能を使ってください。チーム機能は「自分の活動をサポートしてもらう人」向けです。</div>
+      <div class="guide-warn"><span class="ti">⚠️</span>マネージャー権限を持つ相手はあなたの案件情報（企業名・金額など）も閲覧できます。権限の範囲を十分確認してから招待してください。</div>
+    </div>
+
+    <!-- 制作進捗 -->
+    <div class="guide-page" id="g-progress">
+      <h3>📐 制作進捗</h3>
+      <p>動画・サムネ・台本・楽曲など制作中のプロジェクトを進捗バーで管理します。イラストレーター・音楽活動者・同人作家など制作業務が多い方に特に便利です。</p>
+      <div class="guide-step"><div class="sn">1</div><div class="st"><strong>プロジェクトを追加</strong>：「＋ プロジェクトを追加」からプロジェクト名・種類・初期進捗・締め切りを設定します。</div></div>
+      <div class="guide-step"><div class="sn">2</div><div class="st"><strong>進捗を更新</strong>：カードをタップすると進捗（0〜100%）を入力できます。バーがリアルタイムで更新されます。</div></div>
+      <div class="guide-step"><div class="sn">3</div><div class="st"><strong>締め切りアラート</strong>：締め切りを設定すると残日数が表示されます。3日以内は黄色、超過は赤で強調されます。</div></div>
+      <div class="guide-step"><div class="sn">4</div><div class="st"><strong>完了にする</strong>：✓ボタンで「完了済み」に移動します。</div></div>
+      <div class="guide-tip"><span class="ti">💡</span>このタブは設定タブの「表示タブのカスタマイズ」でオフにできます。使わない場合は非表示にしておくとすっきりします。</div>
+    </div>
+
+    <!-- 出展管理 -->
+    <div class="guide-page" id="g-events">
+      <h3>🎪 出展管理</h3>
+      <p>コミックマーケット・文学フリマ・音楽フェスなどのイベント出展を管理します。同人作家・音楽活動者など展示・即売系の活動をする方向けのサブ機能です。</p>
+      <div class="guide-step"><div class="sn">1</div><div class="st"><strong>出展を追加</strong>：イベント名・開催日・会場・スペース番号・目標売上を記録できます。</div></div>
+      <div class="guide-step"><div class="sn">2</div><div class="st"><strong>カレンダー連動</strong>：出展を追加すると自動でカレンダーにも「出展」予定が追加されます。</div></div>
+      <div class="guide-step"><div class="sn">3</div><div class="st"><strong>今後・過去の切り分け</strong>：開催日を過ぎると自動で「過去の出展」に移動します。売上実績と目標を比較して振り返りに使えます。</div></div>
+      <div class="guide-tip"><span class="ti">💡</span>使わない場合は設定タブの「表示タブのカスタマイズ」でオフにできます。</div>
+    </div>
+
+    <!-- 告知文 -->
+    <div class="guide-page" id="g-announce">
+      <h3>📣 告知文生成</h3>
+      <p>配信・投稿・リリース・イベント出展などの告知文をAIが自動生成します。毎回ゼロから書く手間を省けます。</p>
+      <div class="guide-step"><div class="sn">1</div><div class="st"><strong>種類を選ぶ</strong>：配信・動画投稿・イベント出展・新作リリース・コラボから選びます。</div></div>
+      <div class="guide-step"><div class="sn">2</div><div class="st"><strong>情報を入力</strong>：タイトル・日時・ひとことを入力します。少ない情報でも生成できますが、詳しいほど精度が上がります。</div></div>
+      <div class="guide-step"><div class="sn">3</div><div class="st"><strong>出力形式を選ぶ</strong>：X（140文字）・Discord・YouTube概要欄・ブログの4種類から選べます。</div></div>
+      <div class="guide-step"><div class="sn">4</div><div class="st"><strong>コピーして投稿</strong>：生成された文章を確認してコピーボタンで一発コピーできます。</div></div>
+      <div class="guide-step"><div class="sn">5</div><div class="st"><strong>配信前チェックリスト</strong>：同タブ内のチェックリストで活動前の確認事項を管理できます。「編集」ボタンで自分用にカスタマイズできます。</div></div>
+      <div class="guide-tip"><span class="ti">💡</span>告知文はあくまで下書きです。AIが生成した文章を自分の言葉に少し手を加えると、よりオリジナリティが出ます。</div>
     </div>
 
     <!-- セキュリティ -->
     <div class="guide-page" id="g-sec">
       <h3>🔒 セキュリティとプライバシー</h3>
-      <p>配信者の個人情報・収益情報を守るために知っておいてほしいことをまとめています。</p>
+      <p>配信者・クリエイターの個人情報・収益情報を守るために知っておいてほしいことをまとめています。</p>
       <div class="guide-sec-row">
         <h4>🗄️ データの保管場所 <span class="sec-badge" style="color:var(--calm);border-color:var(--calm);">安全</span></h4>
         <p>すべてのデータはSupabase（AWS上のPostgreSQL）に保管されています。Row Level Security（RLS）により、あなたのデータは<strong>あなたのアカウントでログインしないと読めない</strong>設計になっています。運営者もデータの中身を閲覧することはできません。</p>
@@ -1192,8 +1293,9 @@ input[type=number]{-moz-appearance:textfield;}
         <p>コラボ申請リンク・グループ招待リンクはログイン不要で開けるURLです。不特定多数に公開しないよう注意してください。コラボリンクは「空き日の大まかな情報」のみ表示され、詳細な個人情報は含みません。</p>
       </div>
       <div class="guide-sec-row">
-        <h4>👥 グループ・チームメンバー <span class="sec-badge" style="color:var(--gold);border-color:var(--gold);">注意</span></h4>
-        <p>グループメンバーはグループの共有予定・タスクを読み書きできます。チームのマネージャーはあなたの個人予定・案件を閲覧できます。信頼できる相手のみを招待してください。不要になったメンバーはいつでも削除できます。</p>
+        <h4>👥 グループ・チームメンバーの権限 <span class="sec-badge" style="color:var(--gold);border-color:var(--gold);">注意</span></h4>
+        <p><strong>グループメンバー</strong>はそのグループの共有予定・共有タスクを読み書きできます。あなたの個人データ（収支・案件など）は見えません。</p>
+        <p style="margin-top:6px;"><strong>チームのマネージャー</strong>はあなたの個人予定・案件（企業名・金額を含む）を閲覧できます。モデレーターは予定のみ、閲覧者は見るだけです。信頼できる相手にのみ招待してください。不要になったメンバーはいつでも削除できます。</p>
       </div>
       <div class="guide-sec-row">
         <h4>💳 決済情報 <span class="sec-badge" style="color:var(--calm);border-color:var(--calm);">安全</span></h4>
@@ -3899,8 +4001,8 @@ async function checkTodayScheduleNotification(){
     localStorage.setItem(todayKey,'1');
   }catch(e){console.warn('Discord通知エラー:',e);}
 }
-const GUIDE_PAGES=['g-home','g-cal','g-collab','g-deals','g-act','g-rev','g-ideas','g-groups','g-sec'];
-const GUIDE_TAB_MAP={home:'g-home',calendar:'g-cal',collab:'g-collab',deals:'g-deals',activity:'g-act',revenue:'g-rev',ideas:'g-ideas',groups:'g-groups',settings:'g-sec'};
+const GUIDE_PAGES=['g-home','g-cal','g-collab','g-deals','g-act','g-rev','g-ideas','g-groups','g-team','g-progress','g-events','g-announce','g-sec'];
+const GUIDE_TAB_MAP={home:'g-home',calendar:'g-cal',collab:'g-collab',deals:'g-deals',activity:'g-act',revenue:'g-rev',ideas:'g-ideas',groups:'g-groups',settings:'g-team',progress:'g-progress',events:'g-events',announce:'g-announce'};
 let currentGuidePage=0;
 
 function switchGuide(btn, pageId){
