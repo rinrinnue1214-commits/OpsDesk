@@ -2288,6 +2288,19 @@ async function signOut(){
 
 // ── AUTH STATE ──
 const shareToken=new URLSearchParams(location.search).get('share');
+let _initDone=false;
+let _initRunning=false;
+// ページロード時にセッションを明示的に確認（localStorageのセッション復元を待つ）
+(async()=>{
+  const{data:{session}}=await sb.auth.getSession();
+  if(session){
+    // セッションが期限切れなら自動更新
+    const exp=session.expires_at*1000;
+    if(Date.now()>exp-60000){
+      await sb.auth.refreshSession();
+    }
+  }
+})();
 sb.auth.onAuthStateChange(async(event,session)=>{
   if(shareToken){
     document.getElementById('authScreen').style.display='none';
@@ -2312,7 +2325,13 @@ sb.auth.onAuthStateChange(async(event,session)=>{
       await initGroupView(teamInviteOwner);
     } else {
       document.getElementById('appScreen').style.display='block';
+      // 二重init防止
+      if(_initRunning)return;
+      if(_initDone&&event==='SIGNED_IN')return;
+      _initRunning=true;
       await init();
+      _initDone=true;
+      _initRunning=false;
       // グループ参加リンクから来たとき
       if(groupJoinId){
         await joinGroupFromLink(groupJoinId);
