@@ -24,7 +24,7 @@ if('serviceWorker' in navigator){
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>OpsDesk</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8"></script>
 <style>
 :root{
   --bg:#12131A;--panel:#1A1C26;--panel2:#20222E;--border:#2A2D3A;
@@ -2308,22 +2308,30 @@ const shareToken=new URLSearchParams(location.search).get('share');
 let _initDone=false;
 let _initRunning=false;
 
-// ページロード時に壊れたセッショントークンを検出・修復
+// ページロード時にセッションを明示的に確認してinitを実行
 (async()=>{
-  const tokenKey='sb-ricanqcwhglbutubbcom-auth-token';
-  const raw=localStorage.getItem(tokenKey);
-  if(raw){
-    try{
-      const parsed=JSON.parse(raw);
-      // トークンが壊れているか期限切れなら削除
-      if(!parsed?.access_token||!parsed?.refresh_token){
-        localStorage.removeItem(tokenKey);
-        console.warn('壊れたセッショントークンを削除しました');
+  try{
+    const{data:{session}}=await sb.auth.getSession();
+    if(session&&!_initDone&&!_initRunning){
+      const params=new URLSearchParams(location.search);
+      const teamInviteOwner=params.get('team_invite');
+      document.getElementById('authScreen').style.display='none';
+      document.getElementById('shareScreen').style.display='none';
+      document.getElementById('groupScreen').style.display='none';
+      if(teamInviteOwner&&teamInviteOwner!==session.user.id){
+        document.getElementById('appScreen').style.display='none';
+        await initGroupView(teamInviteOwner);
+      } else {
+        document.getElementById('appScreen').style.display='block';
+        _initRunning=true;
+        await init();
+        _initDone=true;
+        _initRunning=false;
+        await checkOnboarding();
       }
-    }catch(e){
-      localStorage.removeItem(tokenKey);
-      console.warn('無効なセッショントークンを削除しました');
     }
+  }catch(e){
+    console.warn('initial session check error',e);
   }
 })();
 sb.auth.onAuthStateChange(async(event,session)=>{
@@ -2338,7 +2346,7 @@ sb.auth.onAuthStateChange(async(event,session)=>{
     document.getElementById('authScreen').style.display='flex';document.getElementById('appScreen').style.display='none';
     document.getElementById('authBoxNormal').style.display='none';document.getElementById('authBoxResetRequest').style.display='none';document.getElementById('authBoxNewPassword').style.display='block';return;
   }
-  if(session){
+  if(event==='SIGNED_IN'&&session&&!_initDone&&!_initRunning){
     const params=new URLSearchParams(location.search);
     const teamInviteOwner=params.get('team_invite');
     const groupJoinId=params.get('group_join');
@@ -2350,11 +2358,7 @@ sb.auth.onAuthStateChange(async(event,session)=>{
       await initGroupView(teamInviteOwner);
     } else {
       document.getElementById('appScreen').style.display='block';
-      // INITIAL_SESSION・TOKEN_REFRESHED・SIGNED_INのいずれかで初回initを実行
-      if(_initRunning)return;
-      if(_initDone&&event!=='TOKEN_REFRESHED')return;
       _initRunning=true;
-      _initDone=false;
       await init();
       _initDone=true;
       _initRunning=false;
@@ -2365,11 +2369,12 @@ sb.auth.onAuthStateChange(async(event,session)=>{
       }
       await checkOnboarding();
     }
-  } else {
+  } else if(event==='SIGNED_OUT'||(!session&&event!=='INITIAL_SESSION')){
     document.getElementById('authScreen').style.display='flex';
     document.getElementById('appScreen').style.display='none';
     document.getElementById('groupScreen').style.display='none';
     document.getElementById('shareScreen').style.display='none';
+    _initDone=false;
   }
 });
 if(shareToken)loadSharedAvailability(shareToken);
