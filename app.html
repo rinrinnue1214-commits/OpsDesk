@@ -2082,6 +2082,7 @@ const SUPABASE_URL="https://ricanqcwhglbutubbcom.supabase.co";
 const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpY2FucWN3aGdsYnV0dWJiY29tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwNTc0NTUsImV4cCI6MjA5NzYzMzQ1NX0.vqqNnsLpJhCp4qTOBCcDCz2XCmAxLfd3_5583mcmhdk";
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
+const REV_CATS={'収入':['投げ銭/スパチャ','メンバーシップ/サブスク','グッズ販売・作品販売','受注・依頼料','原稿料/印税','出演料/ライブ収益','企業案件','その他収入'],'支出':['機材費','配信/編集ソフト','材料費','外注費','出展料','レッスン費','通信費','その他経費']};
 // ── STATE ──
 let schedule=[],youtubeLinks={},templates=[],revenue=[],ideas=[],tasks=[];
 let deals=[],activities=[],collabPartners=[],teamMembers=[];
@@ -2802,7 +2803,6 @@ async function toggleScheduleDone(id){
 }
 
 // ── REVENUE ──
-const REV_CATS={'収入':['投げ銭/スパチャ','メンバーシップ/サブスク','グッズ販売・作品販売','受注・依頼料','原稿料/印税','出演料/ライブ収益','企業案件','その他収入'],'支出':['機材費','配信/編集ソフト','材料費','外注費','出展料','レッスン費','通信費','その他経費']};
 function selectRevType(type){
   document.getElementById('rev-type').value=type;
   document.getElementById('rev-type-income').classList.toggle('act',type==='収入');
