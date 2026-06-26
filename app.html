@@ -24,7 +24,7 @@ if('serviceWorker' in navigator){
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>OpsDesk</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
 <style>
 :root{
   --bg:#12131A;--panel:#1A1C26;--panel2:#20222E;--border:#2A2D3A;
@@ -2080,14 +2080,7 @@ BGM音量確認"></textarea>
 <script>
 const SUPABASE_URL="https://ricanqcwhglbutubbcom.supabase.co";
 const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpY2FucWN3aGdsYnV0dWJiY29tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwNTc0NTUsImV4cCI6MjA5NzYzMzQ1NX0.vqqNnsLpJhCp4qTOBCcDCz2XCmAxLfd3_5583mcmhdk";
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{
-  auth:{
-    storage:window.localStorage,
-    autoRefreshToken:true,
-    persistSession:true,
-    detectSessionInUrl:true
-  }
-});
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
 // ── STATE ──
 let schedule=[],youtubeLinks={},templates=[],revenue=[],ideas=[],tasks=[];
