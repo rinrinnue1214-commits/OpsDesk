@@ -2311,14 +2311,26 @@ let _initRunning=false;
 // ページロード時にセッションを明示的に確認してinitを実行
 (async()=>{
   try{
-    const{data:{session}}=await sb.auth.getSession();
-    if(session&&!_initDone&&!_initRunning){
+    // まずlocalStorageから直接トークンを確認（getSession()のデッドロック回避）
+    const tokenKey='sb-ricanqcwhglbutubbcom-auth-token';
+    const raw=localStorage.getItem(tokenKey);
+    let hasSession=false;
+    if(raw){
+      try{
+        const parsed=JSON.parse(raw);
+        if(parsed?.access_token&&parsed?.refresh_token){
+          hasSession=true;
+        }
+      }catch(e){}
+    }
+    if(hasSession){
+      // セッションがある場合はgetSession()を待たずにinitを実行
       const params=new URLSearchParams(location.search);
       const teamInviteOwner=params.get('team_invite');
       document.getElementById('authScreen').style.display='none';
       document.getElementById('shareScreen').style.display='none';
       document.getElementById('groupScreen').style.display='none';
-      if(teamInviteOwner&&teamInviteOwner!==session.user.id){
+      if(teamInviteOwner){
         document.getElementById('appScreen').style.display='none';
         await initGroupView(teamInviteOwner);
       } else {
