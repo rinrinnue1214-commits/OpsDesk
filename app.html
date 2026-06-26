@@ -2419,13 +2419,7 @@ async function submitCollabRequest(token,ownerId){
 }
 
 // ── DATA ──
-async function fetchAll(table){
-  const{data:{user}}=await sb.auth.getUser();
-  if(!user)return[];
-  const{data,error}=await sb.from(table).select('*').eq('user_id',user.id);
-  if(error){console.warn('fetchAll',table,error.message);return[];}
-  return data||[];
-}
+async function fetchAll(table){const{data,error}=await sb.from(table).select('*');if(error){console.warn('fetchAll',table,error.message);return[];}return data||[];}
 async function loadEverything(){
   const[schRows,revRows,ideaRows,taskRows,dealRows,actRows,partnerRows,memberRows]=await Promise.all([
     fetchAll('schedule_items'),fetchAll('revenue_items'),fetchAll('ideas'),fetchAll('tasks'),
