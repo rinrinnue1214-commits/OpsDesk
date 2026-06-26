@@ -376,6 +376,46 @@ input[type=number]{-moz-appearance:textfield;}
 .guide-sec-row h4{font-size:13.5px;font-weight:600;margin:0 0 5px;display:flex;align-items:center;gap:7px;}
 .guide-sec-row p{font-size:12.5px;color:var(--dim2);margin:0;line-height:1.65;}
 .sec-badge{font-size:9px;padding:2px 7px;border-radius:10px;font-family:'IBM Plex Mono',monospace;border:1px solid;}
+/* ── ONBOARDING ── */
+#onboardingScreen{display:none;min-height:100dvh;background:var(--bg);align-items:center;justify-content:center;}
+#onboardingScreen.show{display:flex;}
+.onboard-box{max-width:480px;width:100%;padding:32px 24px;}
+.onboard-title{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;margin:0 0 8px;}
+.onboard-sub{font-size:14px;color:var(--dim);margin:0 0 28px;line-height:1.7;}
+.job-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+.job-card{background:var(--panel);border:1.5px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:border-color .15s,background .15s;text-align:left;}
+.job-card:hover{border-color:var(--dim);}
+.job-card.selected{border-color:var(--live);background:rgba(255,107,91,.08);}
+.job-card .ji{font-size:28px;margin-bottom:8px;}
+.job-card .jn{font-size:14px;font-weight:600;font-family:'Space Grotesk',sans-serif;margin-bottom:3px;}
+.job-card .jd{font-size:11.5px;color:var(--dim);line-height:1.5;}
+/* ── TAB CUSTOMIZE ── */
+.tab-toggle-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.tab-toggle-row:last-child{border-bottom:none;}
+.tab-toggle-label{font-size:13.5px;display:flex;align-items:center;gap:8px;}
+.toggle-sw{position:relative;width:40px;height:22px;flex-shrink:0;}
+.toggle-sw input{opacity:0;width:0;height:0;}
+.toggle-sw .sl{position:absolute;inset:0;background:var(--border);border-radius:22px;cursor:pointer;transition:.2s;}
+.toggle-sw .sl::before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:white;border-radius:50%;transition:.2s;}
+.toggle-sw input:checked+.sl{background:var(--live);}
+.toggle-sw input:checked+.sl::before{transform:translateX(18px);}
+/* ── PROGRESS（制作進捗） ── */
+.progress-card{background:var(--panel2);border-radius:12px;padding:14px;margin-bottom:8px;cursor:pointer;transition:border .15s;}
+.progress-card:hover{outline:1px solid var(--dim);}
+.progress-card .pc-title{font-size:14px;font-weight:600;margin-bottom:6px;}
+.progress-card .pc-bar-wrap{background:var(--border);border-radius:4px;height:6px;margin-bottom:6px;}
+.progress-card .pc-bar-fill{height:6px;border-radius:4px;background:var(--calm);transition:width .3s;}
+.progress-card .pc-meta{font-size:11.5px;color:var(--dim);font-family:'IBM Plex Mono',monospace;display:flex;justify-content:space-between;}
+.progress-card .pc-status{font-size:10.5px;padding:2px 8px;border-radius:10px;border:1px solid;}
+/* ── EVENT（出展管理） ── */
+.event-card{background:var(--panel2);border-radius:12px;padding:14px;margin-bottom:8px;}
+.event-card .ev-name{font-size:14px;font-weight:600;margin-bottom:4px;}
+.event-card .ev-meta{font-size:12px;color:var(--dim);font-family:'IBM Plex Mono',monospace;margin-bottom:8px;}
+.event-card .ev-stats{display:flex;gap:12px;font-size:12px;}
+.event-card .ev-stat .num{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:500;}
+.event-card .ev-stat .lbl{font-size:10px;color:var(--dim);}
+/* ── ANNOUNCE ── */
+.announce-result{background:var(--panel2);border-radius:10px;padding:12px;margin-top:10px;font-size:13px;line-height:1.7;white-space:pre-wrap;}
 </style>
 </head>
 <body>
@@ -417,6 +457,37 @@ input[type=number]{-moz-appearance:textfield;}
     <input type="password" id="new-password" placeholder="8文字以上・英字と数字を含む" oninput="updateNewPwStrength()">
     <p class="pw-strength" id="newPwStrength"></p>
     <button class="primary full" onclick="submitNewPassword()">パスワードを更新</button>
+  </div>
+</div>
+
+<!-- 職種選択オンボーディング -->
+<div id="onboardingScreen">
+  <div class="onboard-box">
+    <div class="mark" style="font-size:22px;margin-bottom:16px;">OpsDesk</div>
+    <div class="onboard-title">あなたの活動を教えてください</div>
+    <div class="onboard-sub">選択した職種に合わせて機能がカスタマイズされます。後から設定タブで変更できます。</div>
+    <div class="job-grid">
+      <div class="job-card" onclick="selectJobCard(this,'streamer')">
+        <div class="ji">🎮</div><div class="jn">配信者・VTuber</div><div class="jd">ゲーム・雑談・歌配信など</div>
+      </div>
+      <div class="job-card" onclick="selectJobCard(this,'illustrator')">
+        <div class="ji">🎨</div><div class="jn">イラストレーター</div><div class="jd">イラスト・デザイン・グラフィック</div>
+      </div>
+      <div class="job-card" onclick="selectJobCard(this,'musician')">
+        <div class="ji">🎵</div><div class="jn">音楽活動者</div><div class="jd">作曲・歌ってみた・バンド</div>
+      </div>
+      <div class="job-card" onclick="selectJobCard(this,'doujin')">
+        <div class="ji">📚</div><div class="jn">同人作家・ライター</div><div class="jd">漫画・小説・同人誌</div>
+      </div>
+      <div class="job-card" onclick="selectJobCard(this,'liver')">
+        <div class="ji">🎤</div><div class="jn">ライバー</div><div class="jd">音声・雑談・ラジオ</div>
+      </div>
+      <div class="job-card" onclick="selectJobCard(this,'custom')">
+        <div class="ji">⚙️</div><div class="jn">カスタム</div><div class="jd">自分で機能を選ぶ</div>
+      </div>
+    </div>
+    <button class="primary full" onclick="finishOnboarding()" style="font-size:15px;padding:14px;">始める →</button>
+    <p style="font-size:11.5px;color:var(--dim);text-align:center;margin-top:12px;">後からいつでも変更できます</p>
   </div>
 </div>
 
@@ -469,7 +540,7 @@ input[type=number]{-moz-appearance:textfield;}
     <div style="display:flex;align-items:center;gap:10px;">
       <button id="pcAddBtn" onclick="onFab()">＋ 追加</button>
       <button onclick="openGuide()" title="使い方ガイド" style="background:none;border:1px solid var(--border);color:var(--dim);border-radius:50%;width:32px;height:32px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Space Grotesk',sans-serif;font-weight:700;" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--dim)'" onmouseout="this.style.color='var(--dim)';this.style.borderColor='var(--border)'">?</button>
-      <div class="next-ev"><span class="dot"></span><span id="statusText" style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">読込中...</span></div>
+      <div class="next-ev" onclick="switchTab('calendar')" style="cursor:pointer;" title="カレンダーを見る"><span class="dot"></span><span id="statusText" style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">読込中...</span></div>
     </div>
   </div>
   <nav id="topNav">
@@ -479,7 +550,10 @@ input[type=number]{-moz-appearance:textfield;}
     <button class="tab-btn" data-tab="deals" onclick="switchTab('deals')"><span class="ni">📋</span>案件</button>
     <button class="tab-btn" data-tab="activity" onclick="switchTab('activity')"><span class="ni">📊</span>実績</button>
     <button class="tab-btn" data-tab="revenue" onclick="switchTab('revenue')"><span class="ni">💰</span>収支</button>
-    <button class="tab-btn" data-tab="ideas" onclick="switchTab('ideas')"><span class="ni">💡</span>ネタ帳</button>
+    <button class="tab-btn" data-tab="ideas" onclick="switchTab('ideas')"><span class="ni">💡</span><span class="tab-label" data-key="ideas">ネタ帳</span></button>
+    <button class="tab-btn" data-tab="progress" onclick="switchTab('progress')" style="display:none;"><span class="ni">📐</span><span class="tab-label" data-key="progress">制作進捗</span></button>
+    <button class="tab-btn" data-tab="events" onclick="switchTab('events')" style="display:none;"><span class="ni">🎪</span><span class="tab-label" data-key="events">出展管理</span></button>
+    <button class="tab-btn" data-tab="announce" onclick="switchTab('announce')" style="display:none;"><span class="ni">📣</span><span class="tab-label" data-key="announce">告知文</span></button>
     <button class="tab-btn" data-tab="groups" onclick="switchTab('groups')"><span class="ni">👥</span>グループ</button>
     <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')"><span class="ni">⚙️</span>設定</button>
   </nav>
@@ -541,7 +615,7 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="cal-grid" id="calGrid"></div>
     <div class="cal-legend">
       <span><span class="cdot" style="background:var(--gold);display:inline-block;"></span>配信/制作</span>
-      <span><span class="cdot" style="background:var(--calm);display:inline-block;"></span>打合/出展</span>
+      <span><span class="cdot" style="background:var(--calm);display:inline-block;"></span>打ち合わせ/出展</span>
       <span><span class="cdot" style="background:var(--blue);display:inline-block;"></span>編集/練習</span>
       <span><span class="cdot" style="background:var(--pink);display:inline-block;"></span>撮影/納品</span>
       <span><span class="cdot" style="background:var(--purple);display:inline-block;"></span>私用</span>
@@ -594,6 +668,16 @@ input[type=number]{-moz-appearance:textfield;}
     </div>
     <div class="coll-body" id="collabRequestBody">
       <div id="collabRequestList"><div class="empty">まだ申請はありません</div></div>
+    </div>
+  </div>
+
+  <!-- コラボ候補リスト -->
+  <div class="card">
+    <div class="card-hd coll-hd closed" onclick="toggleColl(this,'collabCandidateBody')">コラボ候補リスト <span class="chev">▾</span></div>
+    <div class="coll-body closed" id="collabCandidateBody">
+      <p class="hint" style="margin:0 0 10px;">いつか声をかけたい人を「候補→打診済み→決定」でステータス管理できます。</p>
+      <div id="collabCandidateList"><div class="empty">候補を追加してください</div></div>
+      <button class="ghost" style="width:100%;margin-top:8px;" onclick="openModal('addCandidateModal')">＋ 候補を追加</button>
     </div>
   </div>
 
@@ -710,6 +794,81 @@ input[type=number]{-moz-appearance:textfield;}
   <div class="card"><div class="card-hd">メモ帳（テンプレート）</div><div id="templatesList"><div class="empty">まだメモがありません</div></div></div>
 </div>
 
+<!-- PROGRESS（制作進捗） -->
+<div class="panel" id="panel-progress">
+  <div class="page-header"><div class="page-title">制作進捗</div></div>
+  <div class="card">
+    <div class="card-hd">進行中のプロジェクト</div>
+    <div id="progressList"><div class="empty">プロジェクトを追加してください</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd coll-hd closed" onclick="toggleColl(this,'doneProgressBody')">完了済み <span class="chev">▾</span></div>
+    <div class="coll-body closed" id="doneProgressBody">
+      <div id="doneProgressList"><div class="empty">完了済みはありません</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- EVENTS（出展管理） -->
+<div class="panel" id="panel-events">
+  <div class="page-header"><div class="page-title">出展管理</div></div>
+  <div class="card">
+    <div class="card-hd">今後の出展予定</div>
+    <div id="upcomingEventList"><div class="empty">出展予定を追加してください</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd coll-hd closed" onclick="toggleColl(this,'pastEventBody')">過去の出展 <span class="chev">▾</span></div>
+    <div class="coll-body closed" id="pastEventBody">
+      <div id="pastEventList"><div class="empty">過去の出展はありません</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ANNOUNCE（告知文生成） -->
+<div class="panel" id="panel-announce">
+  <div class="page-header"><div class="page-title">告知文生成</div></div>
+  <div class="gated" id="announceGated">
+    <div class="card">
+      <div class="card-hd">告知文をAIで生成</div>
+      <p class="hint" style="margin-top:-4px;">配信・投稿・イベントの告知文を自動生成します。</p>
+      <label>活動の種類</label>
+      <div class="chip-row" id="announceTypeChips" style="margin-bottom:4px;">
+        <button class="chip act" onclick="selectAnnounceType(this,'配信')">配信</button>
+        <button class="chip" onclick="selectAnnounceType(this,'動画投稿')">動画投稿</button>
+        <button class="chip" onclick="selectAnnounceType(this,'イベント出展')">イベント出展</button>
+        <button class="chip" onclick="selectAnnounceType(this,'新作リリース')">新作リリース</button>
+        <button class="chip" onclick="selectAnnounceType(this,'コラボ')">コラボ</button>
+      </div>
+      <input type="hidden" id="announce-type" value="配信">
+      <label>タイトル・内容</label>
+      <input type="text" id="announce-title" placeholder="例:深夜雑談配信 #73、新曲「〇〇」リリース">
+      <label>日時（任意）</label>
+      <input type="text" id="announce-datetime" placeholder="例:6/26(木) 22:00〜、7月1日発売">
+      <label>ひとこと（任意）</label>
+      <input type="text" id="announce-note" placeholder="例:今回はゲストあり、初の試み">
+      <label>出力形式</label>
+      <div class="chip-row" id="announceFormatChips" style="margin-bottom:4px;">
+        <button class="chip act" onclick="selectAnnounceFormat(this,'X（Twitter）140文字')">X（140字）</button>
+        <button class="chip" onclick="selectAnnounceFormat(this,'Discord告知')">Discord</button>
+        <button class="chip" onclick="selectAnnounceFormat(this,'YouTube概要欄')">YouTube概要欄</button>
+        <button class="chip" onclick="selectAnnounceFormat(this,'ブログ・note')">ブログ</button>
+      </div>
+      <input type="hidden" id="announce-format" value="X（Twitter）140文字">
+      <button class="primary full" id="announceBtn" onclick="generateAnnounce()">告知文を生成する</button>
+      <div id="announceResult" style="margin-top:12px;"></div>
+    </div>
+    <!-- 配信前チェックリスト -->
+    <div class="card">
+      <div class="card-hd">配信前チェックリスト
+        <span class="link-btn" onclick="openModal('editChecklistModal')">編集</span>
+      </div>
+      <p class="hint" style="margin-top:-4px;">配信・投稿前の確認事項をテンプレート化できます。</p>
+      <div id="checklistItems"></div>
+      <button class="ghost" style="width:100%;margin-top:8px;" onclick="resetChecklist()">チェックをリセット</button>
+    </div>
+  </div>
+</div>
+
 <!-- GROUPS -->
 <div class="panel" id="panel-groups">
   <!-- グループ一覧ビュー -->
@@ -799,8 +958,26 @@ input[type=number]{-moz-appearance:textfield;}
         <tr><td>案件管理CRM</td><td class="no">—</td><td class="no">—</td><td class="yes">○</td></tr>
         <tr><td>コラボ相手の管理</td><td class="no">—</td><td class="no">—</td><td class="yes">○</td></tr>
         <tr><td>チーム機能</td><td class="no">—</td><td class="no">—</td><td class="yes">○</td></tr>
-        <tr><td>収支年間レポート</td><td class="no">—</td><td class="no">—</td><td class="yes">○</td></tr>
       </table>
+    </div>
+  </div>
+  <!-- タブ・機能カスタマイズ -->
+  <div class="card">
+    <div class="card-hd coll-hd closed" onclick="toggleColl(this,'customizeBody')">表示タブのカスタマイズ <span class="chev">▾</span></div>
+    <div class="coll-body closed" id="customizeBody">
+      <p class="hint" style="margin:0 0 10px;">表示するタブを選択できます。</p>
+      <div id="tabToggleList"></div>
+      <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px;">
+        <div style="font-size:12px;color:var(--dim);margin-bottom:8px;">職種プリセットで一括設定</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <button class="chip" onclick="applyJobPreset('streamer')">🎮 配信者</button>
+          <button class="chip" onclick="applyJobPreset('illustrator')">🎨 イラスト</button>
+          <button class="chip" onclick="applyJobPreset('musician')">🎵 音楽</button>
+          <button class="chip" onclick="applyJobPreset('doujin')">📚 同人</button>
+          <button class="chip" onclick="applyJobPreset('liver')">🎤 ライバー</button>
+          <button class="chip" onclick="applyJobPreset('custom')">⚙️ 全て表示</button>
+        </div>
+      </div>
     </div>
   </div>
   <!-- チーム機能 -->
@@ -1139,7 +1316,8 @@ input[type=number]{-moz-appearance:textfield;}
       </div>
     </div>
     <label>種別</label>
-    <select id="rev-category" onchange="updateRevCategoryOtherField()"></select>
+    <div class="chip-row" id="revCategoryChips" style="flex-wrap:wrap;margin-bottom:4px;"></div>
+    <input type="hidden" id="rev-category" value="">
     <input type="text" id="rev-category-other" placeholder="種別を入力" style="display:none;">
     <label>プラットフォーム/支払先</label>
     <input type="text" id="rev-platform" placeholder="例:YouTube、Amazon" list="revPlatformHistoryList">
@@ -1220,6 +1398,31 @@ input[type=number]{-moz-appearance:textfield;}
     <div style="display:flex;gap:8px;">
       <button class="ghost" style="flex:1;" onclick="closeModal('addDealModal')">キャンセル</button>
       <button class="primary" style="flex:2;" onclick="addDeal()">追加する</button>
+    </div>
+  </div>
+</div>
+
+<!-- コラボ候補追加モーダル -->
+<div class="modal-overlay" id="addCandidateModal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">コラボ候補を追加</div>
+    <label>活動名・チャンネル名</label>
+    <input type="text" id="cand-name" placeholder="例:〇〇チャンネル">
+    <label>プラットフォーム（任意）</label>
+    <input type="text" id="cand-platform" placeholder="例:YouTube、Twitch">
+    <label>メモ（任意）</label>
+    <textarea id="cand-memo" placeholder="例:ゲーム系VTuber、フォロワー5万人" style="min-height:56px;"></textarea>
+    <label>ステータス</label>
+    <div class="chip-row" id="candStatusChips" style="margin-bottom:4px;">
+      <button class="chip act" onclick="selectCandStatus(this,'候補')">候補</button>
+      <button class="chip" onclick="selectCandStatus(this,'打診済み')">打診済み</button>
+      <button class="chip" onclick="selectCandStatus(this,'決定')">決定</button>
+    </div>
+    <input type="hidden" id="cand-status" value="候補">
+    <div style="display:flex;gap:8px;">
+      <button class="ghost" style="flex:1;" onclick="closeModal('addCandidateModal')">キャンセル</button>
+      <button class="primary" style="flex:2;" onclick="addCollabCandidate()">追加する</button>
     </div>
   </div>
 </div>
@@ -1417,6 +1620,113 @@ input[type=number]{-moz-appearance:textfield;}
   </div>
 </div>
 
+<!-- 制作進捗追加モーダル -->
+<div class="modal-overlay" id="addProgressModal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">制作プロジェクトを追加</div>
+    <label>プロジェクト名</label>
+    <input type="text" id="prog-title" placeholder="例:新曲「〇〇」、第3話原稿">
+    <label>種類</label>
+    <div class="chip-row" id="progTypeChips" style="margin-bottom:4px;">
+      <button class="chip act" onclick="selectProgType(this,'イラスト')">イラスト</button>
+      <button class="chip" onclick="selectProgType(this,'楽曲')">楽曲</button>
+      <button class="chip" onclick="selectProgType(this,'動画')">動画</button>
+      <button class="chip" onclick="selectProgType(this,'原稿')">原稿</button>
+      <button class="chip" onclick="selectProgType(this,'グッズ')">グッズ</button>
+      <button class="chip" onclick="selectProgType(this,'その他')">その他</button>
+    </div>
+    <input type="hidden" id="prog-type" value="イラスト">
+    <label>進捗（%）</label>
+    <input type="range" id="prog-percent" min="0" max="100" value="0" oninput="document.getElementById('prog-percent-val').textContent=this.value+'%'">
+    <div style="text-align:center;font-family:'IBM Plex Mono',monospace;font-size:14px;margin-bottom:8px;"><span id="prog-percent-val">0%</span></div>
+    <label>締め切り（任意）</label>
+    <input type="text" id="prog-deadline" readonly placeholder="締め切りを選択" onclick="openDatePicker('prog-deadline')">
+    <label>メモ（任意）</label>
+    <textarea id="prog-memo" placeholder="例:ラフ完成、線画中" style="min-height:48px;"></textarea>
+    <div style="display:flex;gap:8px;">
+      <button class="ghost" style="flex:1;" onclick="closeModal('addProgressModal')">キャンセル</button>
+      <button class="primary" style="flex:2;" onclick="addProgress()">追加する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 出展追加モーダル -->
+<div class="modal-overlay" id="addEventModal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">出展イベントを追加</div>
+    <label>イベント名</label>
+    <input type="text" id="event-name" placeholder="例:コミックマーケット107、文学フリマ東京">
+    <label>開催日</label>
+    <input type="text" id="event-date" readonly placeholder="日付を選択" onclick="openDatePicker('event-date')">
+    <label>会場・場所（任意）</label>
+    <input type="text" id="event-venue" placeholder="例:東京ビッグサイト">
+    <label>スペース・ブース番号（任意）</label>
+    <input type="text" id="event-space" placeholder="例:東ア-01a">
+    <label>目標売上（円・任意）</label>
+    <input type="number" id="event-target" placeholder="例:30000" inputmode="numeric">
+    <label>メモ（任意）</label>
+    <textarea id="event-memo" placeholder="例:新刊2冊持ち込み予定" style="min-height:48px;"></textarea>
+    <div style="display:flex;gap:8px;">
+      <button class="ghost" style="flex:1;" onclick="closeModal('addEventModal')">キャンセル</button>
+      <button class="primary" style="flex:2;" onclick="addEvent()">追加する</button>
+    </div>
+  </div>
+</div>
+
+<!-- チェックリスト編集モーダル -->
+<div class="modal-overlay" id="editChecklistModal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">チェックリストを編集</div>
+    <p class="hint" style="margin-top:-6px;">1行につき1項目。配信・投稿前の確認事項を入力してください。</p>
+    <textarea id="checklist-edit-text" style="min-height:180px;" placeholder="例:
+タイトル・サムネ確認
+概要欄更新
+告知ツイート投稿
+配信テスト
+BGM音量確認"></textarea>
+    <div style="display:flex;gap:8px;">
+      <button class="ghost" style="flex:1;" onclick="closeModal('editChecklistModal')">キャンセル</button>
+      <button class="primary" style="flex:2;" onclick="saveChecklist()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- グループ共有予定追加モーダル -->
+<div class="modal-overlay" id="addGroupScheduleModal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">共有予定を追加</div>
+    <label>種類</label>
+    <div class="chip-row" id="grpSchTypeChips" style="margin-bottom:4px;">
+      <button class="chip act" onclick="selectGrpSchType(this,'打ち合わせ')">打ち合わせ</button>
+      <button class="chip" onclick="selectGrpSchType(this,'配信')">配信</button>
+      <button class="chip" onclick="selectGrpSchType(this,'制作')">制作</button>
+      <button class="chip" onclick="selectGrpSchType(this,'撮影')">撮影</button>
+      <button class="chip" onclick="selectGrpSchType(this,'その他')">その他</button>
+    </div>
+    <input type="hidden" id="grp-sch-type" value="打ち合わせ">
+    <label>タイトル</label>
+    <input type="text" id="grp-sch-title" placeholder="例:月次打ち合わせ">
+    <label>日付</label>
+    <div class="chip-row" style="margin-bottom:4px;">
+      <button class="chip" onclick="setQuickDate('grp-sch-date',0)">今日</button>
+      <button class="chip" onclick="setQuickDate('grp-sch-date',1)">明日</button>
+      <button class="chip" onclick="setQuickDate('grp-sch-date',7)">1週間後</button>
+    </div>
+    <input type="text" id="grp-sch-date" readonly placeholder="日付を選択" onclick="openDatePicker('grp-sch-date')">
+    <label>開始時間（任意）</label>
+    <input type="text" id="grp-sch-time" placeholder="例:21:00" oninput="formatTimeInput(this)" onblur="completeTimeOnBlur(this)">
+    <div style="display:flex;gap:8px;">
+      <button class="ghost" style="flex:1;" onclick="closeModal('addGroupScheduleModal')">キャンセル</button>
+      <button class="primary" style="flex:2;" onclick="submitGroupSchedule()">追加する</button>
+    </div>
+  </div>
+</div>
+
+<!-- グループ共有予定追加モーダル end -->
 <!-- グループ作成モーダル -->
 <div class="modal-overlay" id="createGroupModal">
   <div class="modal-box">
@@ -1600,8 +1910,21 @@ async function extractFunctionError(error){
 }
 
 // ── MODAL ──
-function openModal(id){document.getElementById(id).classList.add('show');}
-function closeModal(id){document.getElementById(id).classList.remove('show');}
+function openModal(id){
+  document.getElementById(id).classList.add('show');
+  // スマホ戻るボタン対策：履歴に追加
+  history.pushState({modal:id},'','');
+}
+function closeModal(id){
+  document.getElementById(id).classList.remove('show');
+}
+// スマホ戻るボタンが押されたときモーダルを閉じる
+window.addEventListener('popstate',()=>{
+  const openModals=document.querySelectorAll('.modal-overlay.show');
+  if(openModals.length>0){
+    openModals[openModals.length-1].classList.remove('show');
+  }
+});
 document.addEventListener('click',e=>{if(e.target.classList.contains('modal-overlay'))e.target.classList.remove('show');});
 
 // ── COLLAPSIBLE ──
@@ -1631,14 +1954,13 @@ function switchTab(name){
     if(active) b.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
   });
   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+name));
-  // FAB（スマホ）
   const fab=document.getElementById('fab');
-  const hasFab=!['home','settings'].includes(name);
+  const hasFab=!['home','settings','announce'].includes(name);
   if(fab) fab.style.display=hasFab?'flex':'none';
-  // PC追加ボタン
   const pcBtn=document.getElementById('pcAddBtn');
   if(pcBtn){
-    const label=PC_ADD_LABELS[name];
+    const labels=window.dynamicPcLabels||PC_ADD_LABELS;
+    const label=labels[name];
     pcBtn.style.display=label?'inline-flex':'none';
     if(label) pcBtn.textContent=label;
   }
@@ -1646,11 +1968,8 @@ function switchTab(name){
 
 // ── FAB ──
 function onFab(){
-  // グループタブでグループ内表示中はタスク追加
-  if(currentTab==='groups'&&currentGroupId){
-    openAddGroupTaskModal();return;
-  }
-  const map={calendar:'addScheduleModal',collab:'addCollabModal',deals:'addDealModal',activity:'addActivityModal',revenue:'addRevenueModal',ideas:'addIdeaModal',groups:'createGroupModal'};
+  if(currentTab==='groups'&&currentGroupId){openAddGroupTaskModal();return;}
+  const map={calendar:'addScheduleModal',collab:'addCollabModal',deals:'addDealModal',activity:'addActivityModal',revenue:'addRevenueModal',ideas:'addIdeaModal',groups:'createGroupModal',progress:'addProgressModal',events:'addEventModal'};
   const modal=map[currentTab];
   if(!modal)return;
   if(currentTab==='calendar'&&!document.getElementById('sch-date').value) document.getElementById('sch-date').value=todayISO();
@@ -1779,6 +2098,8 @@ sb.auth.onAuthStateChange(async(event,session)=>{
         const url=new URL(location.href);url.searchParams.delete('group_join');
         history.replaceState({},'' ,url.toString());
       }
+      // 初回オンボーディング
+      await checkOnboarding();
     }
   } else {
     document.getElementById('authScreen').style.display='flex';
@@ -2040,7 +2361,11 @@ function renderDatePicker(){
   const dows=['日','月','火','水','木','金','土'];
   let html=dows.map(d=>`<div class="cal-dow">${d}</div>`).join('');
   for(let i=0;i<firstDow;i++)html+='<div class="cal-cell blank"></div>';
-  for(let day=1;day<=daysInMonth;day++){const ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');html+=`<div class="cal-cell ${ds===todayStr?'today':''} ${ds===selVal?'selected':''}" onclick="dpPick('${ds}')">${day}</div>`;}
+  for(let day=1;day<=daysInMonth;day++){
+    // Dateオブジェクトで生成して月ずれを防ぐ
+    const ds=toISO(new Date(y,m,day));
+    html+=`<div class="cal-cell ${ds===todayStr?'today':''} ${ds===selVal?'selected':''}" onclick="dpPick('${ds}')">${day}</div>`;
+  }
   document.getElementById('dpGrid').innerHTML=html;
 }
 function dpPrevMonth(){dpViewDate=new Date(dpViewDate.getFullYear(),dpViewDate.getMonth()-1,1);renderDatePicker();}
@@ -2198,6 +2523,31 @@ function selectRevType(type){
   document.getElementById('rev-type').value=type;
   document.getElementById('rev-type-income').classList.toggle('act',type==='収入');
   document.getElementById('rev-type-expense').classList.toggle('act',type==='支出');
+  // カテゴリチップを更新
+  const cats=REV_CATS[type]||[];
+  const chipsEl=document.getElementById('revCategoryChips');
+  chipsEl.innerHTML=cats.map((c,i)=>`<button class="chip${i===0?' act':''}" onclick="selectRevCat(this,'${c}')">${c}</button>`).join('');
+  document.getElementById('rev-category').value=cats[0]||'';
+  document.getElementById('rev-category-other').style.display='none';
+}
+function selectRevCat(btn,cat){
+  document.querySelectorAll('#revCategoryChips .chip').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');
+  if(cat.startsWith('その他')){
+    document.getElementById('rev-category').value='';
+    document.getElementById('rev-category-other').style.display='block';
+    setTimeout(()=>document.getElementById('rev-category-other').focus(),0);
+  } else {
+    document.getElementById('rev-category').value=cat;
+    document.getElementById('rev-category-other').style.display='none';
+    document.getElementById('rev-category-other').value='';
+  }
+}
+function updateRevCategoryOtherField(){}
+function selectRevType(type){
+  document.getElementById('rev-type').value=type;
+  document.getElementById('rev-type-income').classList.toggle('act',type==='収入');
+  document.getElementById('rev-type-expense').classList.toggle('act',type==='支出');
   document.getElementById('rev-category').innerHTML=REV_CATS[type].map(c=>`<option>${c}</option>`).join('');
   updateRevCategoryOtherField();
 }
@@ -2242,12 +2592,15 @@ async function addRevenue(){
   const date=document.getElementById('rev-date').value,amount=document.getElementById('rev-amount').value;
   const type=document.getElementById('rev-type').value;
   let category=document.getElementById('rev-category').value;
-  if(category==='その他収入'||category==='その他経費'){const c=document.getElementById('rev-category-other').value.trim();if(c)category=c;}
+  // その他の場合は自由入力欄から取得
+  if(!category){const c=document.getElementById('rev-category-other').value.trim();if(!c){showError('種別を入力してください');return;}category=c;}
   const platform=document.getElementById('rev-platform').value.trim();
   if(!date||!amount){showError('日付と金額を入力してください');return;}
   const{error}=await sb.from('revenue_items').insert({user_id:user.id,date,amount,platform,category,type});
   if(error){showError('保存に失敗しました: '+translateError(error.message));return;}
   ['rev-amount','rev-platform','rev-category-other'].forEach(id=>document.getElementById(id).value='');
+  // チップを最初の項目に戻す
+  selectRevType(type);
   closeModal('addRevenueModal');await loadEverything();renderRevenue();renderGoals();renderCharts();showToast('記録しました');
 }
 function downloadCSV(csv,filename){const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
@@ -2875,7 +3228,73 @@ async function deleteDeal(id){
   await loadEverything();await loadDealLogs();renderDeals();closeModal('dealDetailModal');
 }
 
-// ── COLLAB PARTNERS ──
+// ── COLLAB CANDIDATES ──
+let collabCandidates=[];
+const CAND_STATUS_COLOR={候補:'var(--dim)',打診済み:'var(--gold)',決定:'var(--calm)'};
+
+async function loadCollabCandidates(){
+  const{data:{user}}=await sb.auth.getUser();
+  const{data}=await sb.from('ideas').select('*').eq('user_id',user.id).eq('type','collab_candidate').order('created_at',{ascending:false});
+  collabCandidates=(data||[]).map(r=>({id:r.id,name:r.text,platform:r.title||'',memo:r.memo||'',status:r.category||'候補'}));
+}
+
+function renderCollabCandidates(){
+  const el=document.getElementById('collabCandidateList');if(!el)return;
+  if(!collabCandidates.length){el.innerHTML='<div class="empty">候補を追加してください</div>';return;}
+  el.innerHTML=collabCandidates.map(c=>`<div class="li">
+    <div class="li-row">
+      <div class="li-main">
+        <div class="li-title">${escapeHtml(c.name)}</div>
+        <div class="li-meta">${c.platform?escapeHtml(c.platform)+'・':''}
+          <span style="color:${CAND_STATUS_COLOR[c.status]||'var(--dim)'};">${c.status}</span>
+        </div>
+        ${c.memo?`<div style="font-size:12px;color:var(--dim);margin-top:3px;">${escapeHtml(c.memo)}</div>`:''}
+      </div>
+      <div style="display:flex;gap:4px;">
+        <select style="font-size:11px;padding:5px 8px;min-height:32px;border-radius:7px;" onchange="updateCandStatus('${c.id}',this.value)">
+          ${['候補','打診済み','決定'].map(s=>`<option ${s===c.status?'selected':''}>${s}</option>`).join('')}
+        </select>
+        <button class="ghost sm" onclick="deleteCandConfirm('${c.id}')">削除</button>
+      </div>
+    </div>
+  </div>`).join('');
+}
+
+function selectCandStatus(btn,status){
+  document.querySelectorAll('#candStatusChips .chip').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');document.getElementById('cand-status').value=status;
+}
+
+async function addCollabCandidate(){
+  const{data:{user}}=await sb.auth.getUser();
+  const name=document.getElementById('cand-name').value.trim();
+  if(!name){showError('活動名を入力してください');return;}
+  const platform=document.getElementById('cand-platform').value.trim();
+  const memo=document.getElementById('cand-memo').value.trim();
+  const status=document.getElementById('cand-status').value;
+  // ideasテーブルをtype='collab_candidate'で流用
+  const{error}=await sb.from('ideas').insert({
+    user_id:user.id,text:name,title:platform||null,
+    memo:memo||null,category:status,type:'collab_candidate'
+  });
+  if(error){showError('保存に失敗しました: '+translateError(error.message));return;}
+  ['cand-name','cand-platform','cand-memo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cand-status').value='候補';
+  document.querySelectorAll('#candStatusChips .chip').forEach((b,i)=>b.classList.toggle('act',i===0));
+  closeModal('addCandidateModal');
+  await loadCollabCandidates();renderCollabCandidates();showToast('候補を追加しました');
+}
+
+async function updateCandStatus(id,status){
+  await sb.from('ideas').update({category:status}).eq('id',id);
+  await loadCollabCandidates();renderCollabCandidates();showToast('ステータスを更新しました');
+}
+
+async function deleteCandConfirm(id){
+  if(!confirm('この候補を削除しますか?'))return;
+  await sb.from('ideas').delete().eq('id',id);
+  await loadCollabCandidates();renderCollabCandidates();showToast('削除しました');
+}
 let collabReviews={}; // partner_id => [{...}]
 let collabRequests=[]; // 受信した申請
 let currentPartnerId=null;
@@ -3103,7 +3522,383 @@ async function addCollabPartner(){
 }
 async function deleteCollabPartner(id){if(!confirm('このコラボ相手を削除しますか?'))return;await sb.from('collab_partners').delete().eq('id',id);await loadEverything();await loadCollabReviews();renderCollabPartners();renderCollabStats();}
 
-// ── GUIDE ──
+// ── ONBOARDING & JOB PRESET ──
+const JOB_PRESETS={
+  streamer:{label:'配信者・VTuber',tabs:['home','calendar','collab','deals','activity','revenue','ideas','announce','groups','settings']},
+  illustrator:{label:'イラストレーター',tabs:['home','calendar','deals','activity','revenue','ideas','progress','announce','groups','settings']},
+  musician:{label:'音楽活動者',tabs:['home','calendar','collab','deals','activity','revenue','ideas','progress','announce','groups','settings']},
+  doujin:{label:'同人作家・ライター',tabs:['home','calendar','deals','revenue','ideas','progress','events','groups','settings']},
+  liver:{label:'ライバー',tabs:['home','calendar','collab','activity','revenue','ideas','announce','settings']},
+  custom:{label:'カスタム',tabs:['home','calendar','collab','deals','activity','revenue','ideas','progress','events','announce','groups','settings']},
+};
+
+// カスタマイズ可能なタブ定義
+const CUSTOMIZABLE_TABS=[
+  {id:'calendar',label:'📅 カレンダー',required:false},
+  {id:'collab',label:'🤝 コラボ',required:false},
+  {id:'deals',label:'📋 案件',required:false},
+  {id:'activity',label:'📊 実績',required:false},
+  {id:'revenue',label:'💰 収支',required:false},
+  {id:'ideas',label:'💡 ネタ帳',required:false},
+  {id:'progress',label:'📐 制作進捗',required:false},
+  {id:'events',label:'🎪 出展管理',required:false},
+  {id:'announce',label:'📣 告知文',required:false},
+  {id:'groups',label:'👥 グループ',required:false},
+];
+
+let selectedJobType='streamer';
+let visibleTabs=new Set(['home','calendar','collab','deals','activity','revenue','ideas','groups','settings','announce','progress','events']);
+
+function selectJobCard(el,jobType){
+  document.querySelectorAll('.job-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedJobType=jobType;
+}
+
+async function finishOnboarding(){
+  const{data:{user}}=await sb.auth.getUser();
+  const preset=JOB_PRESETS[selectedJobType]||JOB_PRESETS.streamer;
+  visibleTabs=new Set(preset.tabs);
+  // profilesに保存
+  await sb.from('profiles').upsert({id:user.id,job_type:selectedJobType,visible_tabs:JSON.stringify([...visibleTabs])});
+  document.getElementById('onboardingScreen').classList.remove('show');
+  document.getElementById('appScreen').style.display='block';
+  applyTabVisibility();
+  await init();
+}
+
+function applyJobPreset(jobType){
+  const preset=JOB_PRESETS[jobType]||JOB_PRESETS.custom;
+  visibleTabs=new Set(preset.tabs);
+  applyTabVisibility();
+  saveTabSettings();
+  renderTabToggleList();
+  showToast(`${preset.label}のプリセットを適用しました`);
+}
+
+function applyTabVisibility(){
+  // ナビタブの表示切替
+  document.querySelectorAll('#topNav .tab-btn').forEach(btn=>{
+    const tab=btn.dataset.tab;
+    if(!tab||tab==='home'||tab==='settings')return;
+    btn.style.display=visibleTabs.has(tab)?'':'none';
+  });
+  // TAB_ORDERを動的に更新
+  const base=['home','calendar','collab','deals','activity','revenue','ideas','progress','events','announce','groups','settings'];
+  window.dynamicTabOrder=base.filter(t=>visibleTabs.has(t));
+  // PC追加ラベルも更新
+  updatePcAddLabels();
+}
+
+function updatePcAddLabels(){
+  const ALL_LABELS={
+    calendar:'＋ 予定を追加',collab:'＋ コラボ相手を追加',deals:'＋ 案件を追加',
+    activity:'＋ 実績を記録',revenue:'＋ 収支を記録',ideas:'＋ タスク・ネタを追加',
+    progress:'＋ プロジェクトを追加',events:'＋ 出展を追加',announce:null,
+    groups:'＋ グループを作成',home:null,settings:null
+  };
+  window.dynamicPcLabels=ALL_LABELS;
+}
+
+function renderTabToggleList(){
+  const el=document.getElementById('tabToggleList');if(!el)return;
+  el.innerHTML=CUSTOMIZABLE_TABS.map(t=>`
+    <div class="tab-toggle-row">
+      <div class="tab-toggle-label">${t.label}</div>
+      <label class="toggle-sw">
+        <input type="checkbox" ${visibleTabs.has(t.id)?'checked':''} onchange="toggleTabVisibility('${t.id}',this.checked)">
+        <span class="sl"></span>
+      </label>
+    </div>`).join('');
+}
+
+function toggleTabVisibility(tabId,show){
+  if(show) visibleTabs.add(tabId);
+  else visibleTabs.delete(tabId);
+  applyTabVisibility();
+  saveTabSettings();
+  // 非表示にしたタブが現在表示中なら別のタブへ
+  if(!show&&currentTab===tabId)switchTab('home');
+}
+
+async function saveTabSettings(){
+  try{
+    const{data:{user}}=await sb.auth.getUser();
+    await sb.from('profiles').upsert({id:user.id,visible_tabs:JSON.stringify([...visibleTabs])});
+  }catch(e){console.warn('タブ設定保存エラー',e);}
+}
+
+// ── PROGRESS（制作進捗） ──
+let progressItems=[];
+const PROG_STATUS_COLOR={計画中:'var(--dim)',制作中:'var(--gold)',レビュー中:'var(--blue)',完了:'var(--calm)'};
+
+function selectProgType(btn,type){
+  document.querySelectorAll('#progTypeChips .chip').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');document.getElementById('prog-type').value=type;
+}
+
+async function loadProgress(){
+  const rows=await fetchAll('ideas').catch(()=>[]);
+  progressItems=rows.filter(r=>r.type==='progress_item').map(r=>({
+    id:r.id,title:r.text,itemType:r.title||'その他',
+    percent:Number(r.memo)||0,deadline:r.category||null,
+    done:r.done||false,createdAt:new Date(r.created_at).getTime()
+  }));
+}
+
+function renderProgress(){
+  const activeEl=document.getElementById('progressList');
+  const doneEl=document.getElementById('doneProgressList');
+  if(!activeEl)return;
+  const active=progressItems.filter(p=>!p.done).sort((a,b)=>new Date(a.deadline||'9999')-new Date(b.deadline||'9999'));
+  const done=progressItems.filter(p=>p.done);
+  const today=new Date();today.setHours(0,0,0,0);
+  const renderItem=(p)=>{
+    const dueDiff=p.deadline?Math.floor((new Date(p.deadline+'T00:00')-today)/86400000):null;
+    const dueLabel=dueDiff!==null?(dueDiff<0?`${Math.abs(dueDiff)}日超過`:dueDiff===0?'今日':'あと'+dueDiff+'日'):'';
+    const dueColor=dueDiff!==null&&dueDiff<=0?'var(--live)':dueDiff!==null&&dueDiff<=3?'var(--gold)':'var(--dim)';
+    return`<div class="progress-card" onclick="editProgressPercent('${p.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div class="pc-title">${escapeHtml(p.title)}</div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          ${dueLabel?`<span style="font-size:11px;color:${dueColor};font-family:'IBM Plex Mono',monospace;">${dueLabel}</span>`:''}
+          <button class="ghost sm" onclick="event.stopPropagation();completeProgress('${p.id}')" style="${p.done?'color:var(--calm);':''}">✓</button>
+          <button class="ghost sm" onclick="event.stopPropagation();deleteProgressItem('${p.id}')">削除</button>
+        </div>
+      </div>
+      <div class="pc-bar-wrap"><div class="pc-bar-fill" style="width:${p.percent}%;"></div></div>
+      <div class="pc-meta"><span>${escapeHtml(p.itemType)}</span><span>${p.percent}%</span></div>
+    </div>`;
+  };
+  activeEl.innerHTML=active.length?active.map(renderItem).join(''):'<div class="empty">進行中のプロジェクトはありません</div>';
+  if(doneEl) doneEl.innerHTML=done.length?done.map(renderItem).join(''):'<div class="empty">完了済みはありません</div>';
+}
+
+async function addProgress(){
+  const{data:{user}}=await sb.auth.getUser();
+  const title=document.getElementById('prog-title').value.trim();
+  if(!title){showError('プロジェクト名を入力してください');return;}
+  const itemType=document.getElementById('prog-type').value;
+  const percent=document.getElementById('prog-percent').value;
+  const deadline=document.getElementById('prog-deadline').value||null;
+  const memo=document.getElementById('prog-memo').value.trim();
+  const{error}=await sb.from('ideas').insert({
+    user_id:user.id,text:title,title:itemType,
+    memo:String(percent),category:deadline,type:'progress_item',done:false
+  });
+  if(error){showError('保存に失敗しました');return;}
+  ['prog-title','prog-deadline','prog-memo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('prog-percent').value=0;
+  document.getElementById('prog-percent-val').textContent='0%';
+  closeModal('addProgressModal');
+  await loadProgress();renderProgress();showToast('プロジェクトを追加しました');
+}
+
+async function editProgressPercent(id){
+  const p=progressItems.find(x=>x.id===id);if(!p)return;
+  const val=prompt(`「${p.title}」の進捗を入力（0〜100）:`,p.percent);
+  if(val===null)return;
+  const num=Math.min(100,Math.max(0,Number(val)));
+  await sb.from('ideas').update({memo:String(num)}).eq('id',id);
+  await loadProgress();renderProgress();
+}
+
+async function completeProgress(id){
+  await sb.from('ideas').update({done:true}).eq('id',id);
+  await loadProgress();renderProgress();showToast('完了しました！');
+}
+
+async function deleteProgressItem(id){
+  if(!confirm('このプロジェクトを削除しますか?'))return;
+  await sb.from('ideas').delete().eq('id',id);
+  await loadProgress();renderProgress();
+}
+
+// ── EVENTS（出展管理） ──
+let eventItems=[];
+
+async function loadEvents(){
+  const rows=await fetchAll('ideas').catch(()=>[]);
+  eventItems=rows.filter(r=>r.type==='event_item').map(r=>{
+    let meta={};try{meta=JSON.parse(r.memo||'{}');}catch(e){}
+    return{id:r.id,name:r.text,date:r.title||'',venue:meta.venue||'',space:meta.space||'',target:meta.target||0,sales:meta.sales||0,memo:meta.memo||''};
+  }).sort((a,b)=>new Date(a.date||'9999')-new Date(b.date||'9999'));
+}
+
+function renderEvents(){
+  const today=todayISO();
+  const upcoming=eventItems.filter(e=>e.date>=today);
+  const past=eventItems.filter(e=>e.date<today);
+  const renderEvent=e=>`<div class="event-card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div class="ev-name">${escapeHtml(e.name)}</div>
+        <div class="ev-meta">${e.date?fmtDate(e.date):'日付未定'}${e.venue?' ・ '+escapeHtml(e.venue):''}${e.space?' ・ '+escapeHtml(e.space):''}</div>
+      </div>
+      <button class="ghost sm" onclick="deleteEventItem('${e.id}')">削除</button>
+    </div>
+    ${e.target||e.sales?`<div class="ev-stats">
+      ${e.target?`<div class="ev-stat"><div class="num" style="color:var(--gold);">¥${Number(e.target).toLocaleString()}</div><div class="lbl">目標</div></div>`:''}
+      ${e.sales?`<div class="ev-stat"><div class="num" style="color:var(--calm);">¥${Number(e.sales).toLocaleString()}</div><div class="lbl">実績</div></div>`:''}
+    </div>`:''}
+    ${e.memo?`<div style="font-size:12px;color:var(--dim);margin-top:6px;">${escapeHtml(e.memo)}</div>`:''}
+  </div>`;
+  const upEl=document.getElementById('upcomingEventList');
+  const pastEl=document.getElementById('pastEventList');
+  if(upEl) upEl.innerHTML=upcoming.length?upcoming.map(renderEvent).join(''):'<div class="empty">出展予定を追加してください</div>';
+  if(pastEl) pastEl.innerHTML=past.length?past.map(renderEvent).join(''):'<div class="empty">過去の出展はありません</div>';
+}
+
+async function addEvent(){
+  const{data:{user}}=await sb.auth.getUser();
+  const name=document.getElementById('event-name').value.trim();
+  if(!name){showError('イベント名を入力してください');return;}
+  const date=document.getElementById('event-date').value;
+  const meta={venue:document.getElementById('event-venue').value.trim(),space:document.getElementById('event-space').value.trim(),target:document.getElementById('event-target').value,memo:document.getElementById('event-memo').value.trim()};
+  const{error}=await sb.from('ideas').insert({user_id:user.id,text:name,title:date||null,memo:JSON.stringify(meta),type:'event_item'});
+  if(error){showError('保存に失敗しました');return;}
+  ['event-name','event-date','event-venue','event-space','event-target','event-memo'].forEach(id=>document.getElementById(id).value='');
+  closeModal('addEventModal');
+  await loadEvents();renderEvents();showToast('出展を追加しました');
+  // カレンダーにも追加
+  if(date){await sb.from('schedule_items').insert({user_id:user.id,date,title:name,type:'出展',done:false});}
+}
+
+async function deleteEventItem(id){
+  if(!confirm('この出展を削除しますか?'))return;
+  await sb.from('ideas').delete().eq('id',id);
+  await loadEvents();renderEvents();
+}
+
+// ── ANNOUNCE（告知文生成） ──
+function selectAnnounceType(btn,type){
+  document.querySelectorAll('#announceTypeChips .chip').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');document.getElementById('announce-type').value=type;
+}
+function selectAnnounceFormat(btn,fmt){
+  document.querySelectorAll('#announceFormatChips .chip').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');document.getElementById('announce-format').value=fmt;
+}
+
+async function generateAnnounce(){
+  const btn=document.getElementById('announceBtn');
+  const result=document.getElementById('announceResult');
+  const type=document.getElementById('announce-type').value;
+  const title=document.getElementById('announce-title').value.trim();
+  const datetime=document.getElementById('announce-datetime').value.trim();
+  const note=document.getElementById('announce-note').value.trim();
+  const format=document.getElementById('announce-format').value;
+  if(!title){showError('タイトル・内容を入力してください');return;}
+  btn.disabled=true;btn.textContent='生成中...';
+  result.innerHTML='<div class="hint">AIが告知文を生成しています...</div>';
+  try{
+    const prompt=`あなたはVTuber・クリエイター向けの告知文ライターです。
+以下の情報をもとに「${format}」形式の告知文を生成してください。
+
+種類: ${type}
+タイトル/内容: ${title}
+${datetime?`日時: ${datetime}`:''}
+${note?`ひとこと: ${note}`:''}
+
+【出力形式のルール】
+- X（Twitter）140文字: 絵文字を効果的に使い、140文字以内で興味を引く文章
+- Discord告知: Markdownで見やすく、詳細情報を含める
+- YouTube概要欄: SEOを意識し、概要・タイムスタンプ・リンク誘導まで含める
+- ブログ・note: 導入文から丁寧に書く
+
+告知文のみを出力してください（説明文不要）。`;
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await resp.json();
+    const text=data.content?.[0]?.text||'生成に失敗しました';
+    result.innerHTML=`<div class="announce-result">${escapeHtml(text)}</div>
+      <button class="ghost" style="width:100%;margin-top:8px;" onclick="copyAnnounceText(this,'${encodeURIComponent(text)}')">コピー</button>`;
+  }catch(e){
+    result.innerHTML=`<div class="ai-error">生成に失敗しました: ${escapeHtml(e.message)}</div>`;
+  }
+  btn.disabled=false;btn.textContent='告知文を生成する';
+}
+
+function copyAnnounceText(btn,encoded){
+  const text=decodeURIComponent(encoded);
+  const onS=()=>{btn.textContent='コピー済み ✓';setTimeout(()=>btn.textContent='コピー',2000);};
+  if(navigator.clipboard) navigator.clipboard.writeText(text).then(onS).catch(()=>fallbackCopy(text,onS));
+  else fallbackCopy(text,onS);
+}
+
+// ── チェックリスト ──
+const DEFAULT_CHECKLIST=['タイトル・サムネ確認','概要欄更新','告知ツイート投稿','配信テスト','BGM音量確認'];
+let checklistItems=[];
+
+function loadChecklist(){
+  try{
+    const saved=localStorage.getItem('opsdesk_checklist');
+    checklistItems=saved?JSON.parse(saved):DEFAULT_CHECKLIST;
+  }catch(e){checklistItems=DEFAULT_CHECKLIST;}
+}
+
+function renderChecklist(){
+  const el=document.getElementById('checklistItems');if(!el)return;
+  const savedState=JSON.parse(localStorage.getItem('opsdesk_checklist_state')||'{}');
+  el.innerHTML=checklistItems.map((item,i)=>`<div class="task-item" style="gap:10px;">
+    <div class="task-chk ${savedState[i]?'done':''}" onclick="toggleChecklistItem(${i})">${savedState[i]?'✓':''}</div>
+    <div class="task-txt ${savedState[i]?'done':''}">${escapeHtml(item)}</div>
+  </div>`).join('');
+}
+
+function toggleChecklistItem(i){
+  const state=JSON.parse(localStorage.getItem('opsdesk_checklist_state')||'{}');
+  state[i]=!state[i];
+  localStorage.setItem('opsdesk_checklist_state',JSON.stringify(state));
+  renderChecklist();
+}
+
+function resetChecklist(){
+  localStorage.removeItem('opsdesk_checklist_state');
+  renderChecklist();showToast('チェックをリセットしました');
+}
+
+function saveChecklist(){
+  const text=document.getElementById('checklist-edit-text').value;
+  checklistItems=text.split('\n').map(s=>s.trim()).filter(Boolean);
+  localStorage.setItem('opsdesk_checklist',JSON.stringify(checklistItems));
+  localStorage.removeItem('opsdesk_checklist_state');
+  closeModal('editChecklistModal');
+  renderChecklist();showToast('チェックリストを保存しました');
+}
+
+function openChecklistEditor(){
+  document.getElementById('checklist-edit-text').value=checklistItems.join('\n');
+  openModal('editChecklistModal');
+}
+async function checkTodayScheduleNotification(){
+  try{
+    const{data:{user}}=await sb.auth.getUser();
+    // 通知済みフラグ（当日のみ）
+    const todayKey='opsdesk_notified_'+todayISO();
+    if(localStorage.getItem(todayKey))return;
+    // 今日の予定を取得
+    const todayItems=schedule.filter(s=>s.date===todayISO()&&!s.done);
+    if(!todayItems.length)return;
+    // Discord Webhook URLを取得
+    const{data:prof}=await sb.from('profiles').select('discord_webhook_url').eq('id',user.id).single();
+    const webhookUrl=prof?.discord_webhook_url;
+    if(!webhookUrl)return;
+    // 通知送信
+    const lines=todayItems.map(s=>`• ${s.time?s.time.slice(0,5)+' ':''} **${s.title}**（${s.type}）`).join('\n');
+    await fetch(webhookUrl,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        content:`📅 **今日の予定（${todayISO()}）**\n${lines}\n\n[OpsDesk を開く](https://rinrinnue1214-commits.github.io/OpsDesk/opsdesk.html)`
+      })
+    });
+    localStorage.setItem(todayKey,'1');
+  }catch(e){console.warn('Discord通知エラー:',e);}
+}
 const GUIDE_PAGES=['g-home','g-cal','g-collab','g-deals','g-act','g-rev','g-ideas','g-groups','g-sec'];
 const GUIDE_TAB_MAP={home:'g-home',calendar:'g-cal',collab:'g-collab',deals:'g-deals',activity:'g-act',revenue:'g-rev',ideas:'g-ideas',groups:'g-groups',settings:'g-sec'};
 let currentGuidePage=0;
@@ -3448,14 +4243,29 @@ async function removeGroupMember(groupId,memberId){
   await loadGroups();renderGroupInnerMembers(groupId);showToast('メンバーを削除しました');
 }
 
-// 共有予定追加（簡易）
+function selectGrpSchType(btn,type){
+  document.querySelectorAll('#grpSchTypeChips .chip').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');document.getElementById('grp-sch-type').value=type;
+}
+
 function openAddGroupScheduleModal(){
-  // カレンダーモーダルを転用せず、グループ用に予定を追加
-  const title=prompt('共有予定のタイトルを入力してください:');
-  if(!title)return;
-  const date=prompt('日付を入力してください (例: 2026-07-10):',todayISO());
-  if(!date)return;
-  addGroupScheduleItem(title,date);
+  document.getElementById('grp-sch-title').value='';
+  document.getElementById('grp-sch-date').value=todayISO();
+  document.getElementById('grp-sch-time').value='';
+  document.getElementById('grp-sch-type').value='打ち合わせ';
+  document.querySelectorAll('#grpSchTypeChips .chip').forEach((b,i)=>b.classList.toggle('act',i===0));
+  openModal('addGroupScheduleModal');
+}
+
+async function submitGroupSchedule(){
+  const title=document.getElementById('grp-sch-title').value.trim();
+  const date=document.getElementById('grp-sch-date').value;
+  if(!title){showError('タイトルを入力してください');return;}
+  if(!date){showError('日付を選択してください');return;}
+  const type=document.getElementById('grp-sch-type').value;
+  const time=document.getElementById('grp-sch-time').value;
+  await addGroupScheduleItem(title,date,time,type);
+  closeModal('addGroupScheduleModal');
 }
 
 async function addGroupScheduleItem(title,date,time='',type='打ち合わせ'){
@@ -3704,28 +4514,47 @@ async function pollForPlanUpdate(){
 function clearCheckoutParam(){const url=new URL(location.href);url.searchParams.delete('checkout');history.replaceState({},'' ,url.toString());}
 
 // ── INIT ──
+async function checkOnboarding(){
+  const{data:{user}}=await sb.auth.getUser();
+  const{data:prof}=await sb.from('profiles').select('job_type,visible_tabs').eq('id',user.id).single();
+  if(!prof?.job_type){
+    // 初回: オンボーディング画面を表示
+    document.getElementById('appScreen').style.display='none';
+    document.getElementById('onboardingScreen').classList.add('show');
+  } else {
+    // タブ設定を復元
+    if(prof.visible_tabs){
+      try{visibleTabs=new Set(JSON.parse(prof.visible_tabs));}catch(e){}
+    }
+    applyTabVisibility();
+    renderTabToggleList();
+    updatePcAddLabels();
+  }
+}
+
 async function init(){
   document.getElementById('sch-date').value=todayISO();
   document.getElementById('act-date').value=todayISO();
   document.getElementById('rev-date').value=todayISO();
   selectRevType('収入');
-  // 自分のuser_idをセット
   const{data:{user}}=await sb.auth.getUser();
   myUserId=user?.id||null;
   await loadEverything();
-  await Promise.all([loadDealLogs(),loadTeamLogs(),loadCollabReviews(),loadCollabRequests(),loadGroups()]);
-  // 担当者セレクト更新
+  await Promise.all([loadDealLogs(),loadTeamLogs(),loadCollabReviews(),loadCollabRequests(),loadGroups(),loadCollabCandidates(),loadProgress(),loadEvents()]);
   updateTaskAssigneeSelect();
-  // グループスケジュール（メンバーがいるプロユーザーのみ表示）
   const showGroup=teamMembers.length>0&&(currentPlan==='pro');
   setGate('groupScheduleGated',showGroup,'グループスケジュールはプロプランでメンバーを招待すると表示されます。');
+  setGate('announceGated',currentPlan!=='free','告知文生成はスタンダード以上でご利用いただけます。');
+  loadChecklist();
   renderSchedule();renderCalendar();renderRevenue();renderIdeas();renderTasks();renderTemplates();
   renderGoals();renderCharts();renderBurnout();renderHomeActivityStats();
   renderDeals();renderActivity();
-  renderCollabPartners();renderCollabStats();renderCollabRequests();
+  renderCollabPartners();renderCollabStats();renderCollabRequests();renderCollabCandidates();
   renderTeamMembers();renderTeamLogs();
   renderWeekGrid();renderGroupList();
+  renderProgress();renderEvents();renderChecklist();
   checkFirstVisit();
+  checkTodayScheduleNotification();
 }
 </script>
 </body>
