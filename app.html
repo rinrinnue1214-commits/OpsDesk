@@ -4731,7 +4731,7 @@ async function addGroupTask(){
   const{data:prof}=await sb.from('profiles').select('display_name').eq('id',user.id).single();
   const authorName=prof?.display_name||'自分';
   const{error}=await sb.from('group_tasks').insert({
-    group_id:currentGroupId,user_id:user.id,
+    group_id:currentGroupId,owner_id:user.id,user_id:user.id,
     text,assignee_id:assigneeId||null,assignee_name:assigneeName,
     due_date:dueDate||null,author_name:authorName,done:false
   });
@@ -4769,7 +4769,7 @@ async function inviteGroupMember(){
   const email=document.getElementById('grp-invite-email').value.trim();
   if(!email){showError('メールアドレスを入力してください');return;}
   const{error}=await sb.from('group_members').insert({
-    group_id:currentGroupId,user_id:null,email,role:'member',display_name:email.split('@')[0]
+    group_id:currentGroupId,owner_id:user.id,user_id:null,email,role:'member',display_name:email.split('@')[0]
   });
   if(error){showError('招待に失敗しました: '+translateError(error.message));return;}
   document.getElementById('grp-invite-email').value='';
@@ -4812,7 +4812,7 @@ async function addGroupScheduleItem(title,date,time='',type='打ち合わせ'){
   const{data:{user}}=await sb.auth.getUser();
   const{data:prof}=await sb.from('profiles').select('display_name').eq('id',user.id).single();
   const{error}=await sb.from('group_schedule').insert({
-    group_id:currentGroupId,user_id:null,// null = 全員共有
+    group_id:currentGroupId,owner_id:user.id,user_id:null,// null = 全員共有
     title,date,time:time||null,type,author_name:prof?.display_name||'自分'
   });
   if(error){showError('保存に失敗しました: '+translateError(error.message));return;}
@@ -4827,8 +4827,9 @@ async function joinGroupFromLink(groupId){
   const{data:existing}=await sb.from('group_members').select('id').eq('group_id',groupId).eq('user_id',user.id).single();
   if(existing){showToast('すでにこのグループに参加しています');return;}
   const{data:prof}=await sb.from('profiles').select('display_name').eq('id',user.id).single();
+  const{data:grp}=await sb.from('groups').select('owner_id').eq('id',groupId).single();
   const{error}=await sb.from('group_members').insert({
-    group_id:groupId,user_id:user.id,email:user.email,
+    group_id:groupId,owner_id:grp?.owner_id||null,user_id:user.id,email:user.email,
     role:'member',display_name:prof?.display_name||user.email?.split('@')[0]||'メンバー'
   });
   if(error){showError('参加に失敗しました: '+translateError(error.message));return;}
