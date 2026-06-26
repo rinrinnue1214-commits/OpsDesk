@@ -468,17 +468,13 @@ input[type=number]{-moz-appearance:textfield;}
 </style>
 <script>
 (function(){
-  // 初回訪問かチェック（無限ループ防止）
-  if(!sessionStorage.getItem('cache_cleared')){
-    sessionStorage.setItem('cache_cleared','1');
-    // キャッシュをクリアして強制リロード
-    if('caches' in window){
-      caches.keys().then(names=>Promise.all(names.map(n=>caches.delete(n)))).then(()=>{
-        location.reload(true);
-      });
-    } else {
-      location.reload(true);
-    }
+  const key='_ts';
+  const now=Math.floor(Date.now()/60000); // 1分単位
+  const url=new URL(location.href);
+  const ts=parseInt(url.searchParams.get(key)||'0');
+  if(ts<now){
+    url.searchParams.set(key,now);
+    location.replace(url.toString());
   }
 })();
 </script>
