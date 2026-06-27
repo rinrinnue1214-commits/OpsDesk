@@ -2210,7 +2210,11 @@ function onFab(){
   const modal=map[currentTab];
   if(!modal)return;
   // モーダルを開くたびに日付を今日にリセット
-  if(currentTab==='calendar') document.getElementById('sch-date').value=todayISO();
+  if(currentTab==='calendar'){
+    document.getElementById('sch-date').value=todayISO();
+    document.getElementById('sch-google-sync-row').style.display=googleConnectedState?'flex':'none';
+    document.getElementById('sch-google-sync').checked=false;
+  }
   if(currentTab==='activity') document.getElementById('act-date').value=todayISO();
   if(currentTab==='revenue'){document.getElementById('rev-date').value=todayISO();selectRevType('収入');}
   openModal(modal);
