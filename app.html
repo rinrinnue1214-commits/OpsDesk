@@ -2505,7 +2505,7 @@ function applyPlanGating(){
   setGate('dealsGated',isPro,'案件管理はプロプランでご利用いただけます。');
   setGate('teamGated',isPro,'チーム機能はプロプランでご利用いただけます。');
   setGate('groupsGated',isPro,'グループ機能はプロプランでご利用いただけます。');
-  if(isPro)checkGoogleConnection();
+  checkGoogleConnection();
 }
 function setGate(id,unlocked,msg){
   const el=document.getElementById(id);if(!el)return;
