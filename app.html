@@ -2351,10 +2351,13 @@ sb.auth.onAuthStateChange(async(event,session)=>{
     document.getElementById('authScreen').style.display='flex';document.getElementById('appScreen').style.display='none';
     document.getElementById('authBoxNormal').style.display='none';document.getElementById('authBoxResetRequest').style.display='none';document.getElementById('authBoxNewPassword').style.display='block';return;
   }
-  if(event==='SIGNED_IN'&&session&&!_initDone&&!_initRunning){
+  if(event==='SIGNED_IN'&&session&&!_initRunning){
     const params=new URLSearchParams(location.search);
     const teamInviteOwner=params.get('team_invite');
     const groupJoinId=params.get('group_join');
+    // Google OAuth callbackの場合は強制的にinitを再実行
+    const isOAuthCallback=location.hash.includes('access_token')||params.get('code');
+    if(_initDone&&!isOAuthCallback)return; // 通常のSIGNED_INは再実行しない
     document.getElementById('authScreen').style.display='none';
     document.getElementById('shareScreen').style.display='none';
     document.getElementById('groupScreen').style.display='none';
