@@ -4732,7 +4732,7 @@ async function addGroupTask(){
   const{data:prof}=await sb.from('profiles').select('display_name').eq('id',user.id).single();
   const authorName=prof?.display_name||'自分';
   const{error}=await sb.from('group_tasks').insert({
-    group_id:currentGroupId,user_id:user.id,
+    group_id:currentGroupId,owner_id:user.id,user_id:user.id,
     text,assignee_id:assigneeId||null,assignee_name:assigneeName,
     due_date:dueDate||null,author_name:authorName,done:false
   });
@@ -4813,7 +4813,7 @@ async function addGroupScheduleItem(title,date,time='',type='打ち合わせ'){
   const{data:{user}}=await sb.auth.getUser();
   const{data:prof}=await sb.from('profiles').select('display_name').eq('id',user.id).single();
   const{error}=await sb.from('group_schedule').insert({
-    group_id:currentGroupId,user_id:null,// null = 全員共有
+    group_id:currentGroupId,owner_id:user.id,user_id:null,// null = 全員共有
     title,date,time:time||null,type,author_name:prof?.display_name||'自分'
   });
   if(error){showError('保存に失敗しました: '+translateError(error.message));return;}
