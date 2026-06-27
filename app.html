@@ -4434,7 +4434,7 @@ async function checkTodayScheduleNotification(){
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        content:`📅 **今日の予定（${todayISO()}）**\n${lines}\n\n[OpsDesk を開く](https://rinrinnue1214-commits.github.io/OpsDesk/opsdesk.html)`
+        content:`📅 **今日の予定（${todayISO()}）**\n${lines}\n\n[OpsDesk を開く](https://opsdesk.rinrinnue1214.workers.dev/app)`
       })
     });
     localStorage.setItem(todayKey,'1');
