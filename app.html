@@ -1013,7 +1013,7 @@ input[type=number]{-moz-appearance:textfield;}
         <tr><td>スケジュール・タスク</td><td class="yes">○</td><td class="yes">○</td><td class="yes">○</td></tr>
         <tr><td>Googleカレンダー連携</td><td class="yes">○</td><td class="yes">○</td><td class="yes">○</td></tr>
         <tr><td>ホーム（ダッシュボード）</td><td class="yes">○</td><td class="yes">○</td><td class="yes">○</td></tr>
-        <tr><td>配信ネタ帳・メモ帳</td><td class="no">—</td><td class="yes">○</td><td class="yes">○</td></tr>
+        <tr><td>配信ネタ帳・メモ帳</td><td class="yes">○</td><td class="yes">○</td><td class="yes">○</td></tr>
         <tr><td>コラボ調整リンク</td><td class="no">—</td><td class="yes">1つ</td><td class="yes">複数</td></tr>
         <tr><td>収支管理</td><td class="no">—</td><td class="yes">直近3ヶ月</td><td class="yes">無制限</td></tr>
         <tr><td>活動実績DB</td><td class="no">—</td><td class="yes">○</td><td class="yes">○</td></tr>
@@ -5095,8 +5095,8 @@ async function init(){
   await loadEverything();
   await Promise.all([loadDealLogs(),loadTeamLogs(),loadCollabReviews(),loadCollabRequests(),loadGroups(),loadCollabCandidates(),loadProgress(),loadEvents(),loadScripts(),loadProjects()]);
   updateTaskAssigneeSelect();
-  const showGroup=teamMembers.length>0&&(currentPlan==='pro');
-  setGate('groupScheduleGated',showGroup,'グループスケジュールはプロプランでメンバーを招待すると表示されます。');
+  const showGroup=currentPlan==='pro';
+  setGate('groupScheduleGated',showGroup,'グループスケジュールはプロプランでご利用いただけます。');
   
   loadChecklist();
   renderSchedule();renderCalendar();renderRevenue();renderIdeas();renderTasks();renderTemplates();
