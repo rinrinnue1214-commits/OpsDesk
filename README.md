@@ -4,9 +4,8 @@
 
 ## アクセス
 
-**アプリ**: https://opsdesk.rinrinnue1214.workers.dev/app.html
-
-**LP**: https://rinrinnue1214-commits.github.io/OpsDesk/index.html
+**アプリ**: https://opsdesk.ringnote.jp/app
+**LP**: https://lp.opsdesk.ringnote.jp
 
 ## スタック技術
 
