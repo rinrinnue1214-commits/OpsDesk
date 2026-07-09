@@ -17,14 +17,14 @@ if('serviceWorker' in navigator){
   }
 }
 async function markDiscordJoined(){
-  if(!user)return;
-  await sb.from('profiles').upsert({id:user.id,discord_joined:true});
+  if(!myUserId)return;
+  await sb.from('profiles').upsert({id:myUserId,discord_joined:true});
   document.getElementById('discordBanner').style.display='none';
 }
 
 async function checkDiscordBanner(){
-  if(!user)return;
-  const{data}=await sb.from('profiles').select('discord_joined').eq('id',user.id).single();
+  if(!myUserId)return;
+  const{data}=await sb.from('profiles').select('discord_joined').eq('id',myUserId).single();
   if(data?.discord_joined)document.getElementById('discordBanner').style.display='none';
 }
 </script>
