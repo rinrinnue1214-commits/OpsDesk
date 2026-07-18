@@ -805,7 +805,7 @@ input[type=number]{-moz-appearance:textfield;}
 <div class="panel" id="panel-activity">
   <div class="page-header">
     <div class="page-title">実績</div>
-    <select id="activity-period" onchange="renderActivity()" style="width:auto;margin:0;font-size:12px;padding:6px 10px;border-radius:8px;min-height:36px;">
+    <select id="activity-period" onchange="onActivityPeriodChange()" style="width:auto;margin:0;font-size:12px;padding:6px 10px;border-radius:8px;min-height:36px;">
       <option value="thisMonth">今月</option><option value="lastMonth">先月</option>
       <option value="thisYear">今年</option><option value="all">全期間</option>
     </select>
@@ -3270,6 +3270,18 @@ async function deleteItem(type,id){
 // ── ACTIVITY ──
 const ACT_COLOR={配信:'live',動画投稿:'gold','ショート/リール':'pink',コラボ:'calm',ライブイベント:'purple','イラスト投稿':'blue','楽曲リリース':'green','同人誌/BOOTH':'gold','ブログ/note':'calm',その他:'dim'};
 const ACT_PERIOD={thisMonth:'今月の実績',lastMonth:'先月の実績',thisYear:'今年の実績',all:'全期間の実績'};
+function onActivityPeriodChange(){
+  const sel=document.getElementById('activity-period');
+  const period=sel?.value||'thisMonth';
+  const isFree=currentPlan==='free';
+  if(isFree&&period!=='thisMonth'){
+    showToast('活動実績DBの期間絞り込みはスタンダード以上でご利用いただけます。');
+    sel.value='thisMonth';
+    renderActivity();
+    return;
+  }
+  renderActivity();
+}
 function filterActivities(items,period){
   const now=new Date();if(period==='all')return items;
   if(period==='thisYear')return items.filter(a=>new Date(a.date).getFullYear()===now.getFullYear());
