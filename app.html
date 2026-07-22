@@ -87,6 +87,23 @@ function checkTrialBanner(){
     banner.style.display='none';
   }
 }
+function checkGettingStarted(){
+  try{
+    if(localStorage.getItem('opsdesk_getting_started_hidden'))return;
+    const card=document.getElementById('gettingStartedCard');
+    if(!card)return;
+    if(schedule.length===0&&activities.length===0){
+      card.style.display='block';
+    }
+  }catch(e){}
+}
+function closeGettingStarted(){
+  try{
+    localStorage.setItem('opsdesk_getting_started_hidden','1');
+    const card=document.getElementById('gettingStartedCard');
+    if(card)card.style.display='none';
+  }catch(e){}
+}
 </script>
 <meta name="google" content="notranslate">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -737,7 +754,44 @@ input[type=number]{-moz-appearance:textfield;}
   </div>
 </div>
 <div class="card" id="trialBanner" style="display:none;background:linear-gradient(135deg,rgba(69,214,176,.2) 0%,rgba(69,214,176,.05) 100%);border:1px solid rgba(69,214,176,.3);">
-  <div style="display:flex;align-items:center;gap:12px;">
+<div class="card" id="gettingStartedCard" style="display:none;border:1px solid rgba(69,214,176,.2);">
+  <div style="font-weight:700;font-size:15px;margin-bottom:12px;">🚀 まずはここから始めよう</div>
+  <div style="display:flex;flex-direction:column;gap:8px;" id="gettingStartedList">
+    <div class="getting-started-item" id="gs-schedule" onclick="showTab('calendar');closeGettingStarted()" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.04);border-radius:8px;cursor:pointer;">
+      <span style="font-size:18px;">📅</span>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;">今日の配信・作業予定を登録する</div>
+        <div style="font-size:11px;color:var(--dim);">カレンダータブ → ＋ 予定を追加</div>
+      </div>
+      <span style="color:var(--calm);font-size:16px;">→</span>
+    </div>
+    <div class="getting-started-item" id="gs-checklist" onclick="showTab('checklist');closeGettingStarted()" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.04);border-radius:8px;cursor:pointer;">
+      <span style="font-size:18px;">✅</span>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;">配信前チェックリストを確認する</div>
+        <div style="font-size:11px;color:var(--dim);">チェックリストタブで確認・カスタマイズ</div>
+      </div>
+      <span style="color:var(--calm);font-size:16px;">→</span>
+    </div>
+    <div class="getting-started-item" id="gs-activity" onclick="openModal('addActivityModal');closeGettingStarted()" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.04);border-radius:8px;cursor:pointer;">
+      <span style="font-size:18px;">📊</span>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;">配信・投稿の実績を記録する</div>
+        <div style="font-size:11px;color:var(--dim);">実績タブ → ＋ 実績を追加（AIタイトル提案あり）</div>
+      </div>
+      <span style="color:var(--calm);font-size:16px;">→</span>
+    </div>
+    <div class="getting-started-item" id="gs-google" onclick="showTab('settings');closeGettingStarted()" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.04);border-radius:8px;cursor:pointer;">
+      <span style="font-size:18px;">🔗</span>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;">Googleカレンダーと連携する</div>
+        <div style="font-size:11px;color:var(--dim);">設定タブ → Google連携 → 連携する</div>
+      </div>
+      <span style="color:var(--calm);font-size:16px;">→</span>
+    </div>
+  </div>
+  <button onclick="closeGettingStarted()" style="width:100%;margin-top:12px;background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;padding:4px;">このカードを非表示にする</button>
+</div>  <div style="display:flex;align-items:center;gap:12px;">
     <div style="font-size:24px;">🎁</div>
     <div style="flex:1;">
       <div style="font-weight:700;color:var(--calm);font-size:14px;">スタンダードプラン トライアル中</div>
@@ -5378,6 +5432,7 @@ async function init(){
   checkFirstVisit();
   checkDiscordBanner();
   checkTrialBanner();
+  checkGettingStarted();
   checkTodayScheduleNotification();
   setInterval(updateStatus,60000);
 }

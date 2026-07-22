@@ -163,6 +163,7 @@ footer .copy{font-size:12px;color:var(--dim);}
   .navlinks{display:none;}
   .cta-banner{padding:36px 24px;}
   .sp-inner{gap:28px;}
+  #quickstart .wrap > div[style*="grid-template-columns:repeat(3"]{grid-template-columns:1fr!important;}
 }
 </style>
 </head>
@@ -640,6 +641,107 @@ footer .copy{font-size:12px;color:var(--dim);}
         <h4>PC・スマホ両対応</h4>
         <p>ブラウザで動作するのでインストール不要。PCでは全タブを一画面表示、スマホは操作しやすい設計です。</p>
       </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- QUICKSTART -->
+<section id="quickstart" style="background:var(--panel);">
+  <div class="wrap">
+    <div class="eyebrow">QUICK START</div>
+    <h2 class="sec-title">はじめて5分で使い始められます</h2>
+    <p class="sec-lead">難しい設定は不要。登録したその日から活動管理をスタートできます。</p>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px;">
+
+      <!-- STEP 1 -->
+      <div style="position:relative;">
+        <div style="background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:28px 24px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--calm);font-weight:600;letter-spacing:1px;margin-bottom:12px;">STEP 01</div>
+          <div style="font-size:28px;margin-bottom:12px;">📝</div>
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-size:18px;margin:0 0 12px;">無料登録</h3>
+          <p style="font-size:13px;color:var(--dim);line-height:1.8;margin:0 0 16px;">メールアドレスとパスワードだけで登録完了。クレジットカード不要。30秒で始められます。</p>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);">
+              <span style="width:18px;height:18px;border-radius:50%;background:rgba(69,214,176,.15);color:var(--calm);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;">✓</span>
+              メールアドレスを入力
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);">
+              <span style="width:18px;height:18px;border-radius:50%;background:rgba(69,214,176,.15);color:var(--calm);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;">✓</span>
+              パスワードを設定（8文字以上）
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);">
+              <span style="width:18px;height:18px;border-radius:50%;background:rgba(69,214,176,.15);color:var(--calm);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;">✓</span>
+              確認メールのリンクをクリック
+            </div>
+          </div>
+          <div style="margin-top:16px;padding:10px 12px;background:rgba(69,214,176,.06);border-radius:8px;font-size:11px;color:var(--calm);">
+            🎁 登録時に30日間無料トライアルを選択できます
+          </div>
+        </div>
+        <div style="display:none;position:absolute;top:50%;right:-16px;transform:translateY(-50%);font-size:20px;color:var(--border);z-index:1;">→</div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div style="position:relative;">
+        <div style="background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:28px 24px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--calm);font-weight:600;letter-spacing:1px;margin-bottom:12px;">STEP 02</div>
+          <div style="font-size:28px;margin-bottom:12px;">⚙️</div>
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-size:18px;margin:0 0 12px;">初期設定</h3>
+          <p style="font-size:13px;color:var(--dim);line-height:1.8;margin:0 0 16px;">ログイン後に活動の種類を選ぶだけ。Googleカレンダーを連携すれば既存の予定もすぐ確認できます。</p>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);">
+              <span style="width:18px;height:18px;border-radius:50%;background:rgba(69,214,176,.15);color:var(--calm);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;">✓</span>
+              活動の種類を選択（VTuber・配信者など）
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);">
+              <span style="width:18px;height:18px;border-radius:50%;background:rgba(69,214,176,.15);color:var(--calm);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;">✓</span>
+              Googleカレンダーと連携（任意）
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);">
+              <span style="width:18px;height:18px;border-radius:50%;background:rgba(69,214,176,.15);color:var(--calm);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;">✓</span>
+              配信前チェックリストをカスタマイズ（任意）
+            </div>
+          </div>
+          <div style="margin-top:16px;padding:10px 12px;background:rgba(242,184,75,.06);border-radius:8px;font-size:11px;color:var(--gold);">
+            ⏱ 所要時間：約3分
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div>
+        <div style="background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:28px 24px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--calm);font-weight:600;letter-spacing:1px;margin-bottom:12px;">STEP 03</div>
+          <div style="font-size:28px;margin-bottom:12px;">🚀</div>
+          <h3 style="font-family:'Space Grotesk',sans-serif;font-size:18px;margin:0 0 12px;">最初にやること</h3>
+          <p style="font-size:13px;color:var(--dim);line-height:1.8;margin:0 0 16px;">今日の配信・作業予定を登録するだけで、すぐに管理が始まります。</p>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);">
+              <span style="width:18px;height:18px;border-radius:50%;background:rgba(69,214,176,.15);color:var(--calm);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;">1</span>
+              今日の配信予定をカレンダーに登録
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);">
+              <span style="width:18px;height:18px;border-radius:50%;background:rgba(69,214,176,.15);color:var(--calm);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;">2</span>
+              配信前チェックリストで準備を確認
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);">
+              <span style="width:18px;height:18px;border-radius:50%;background:rgba(69,214,176,.15);color:var(--calm);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;">3</span>
+              配信後に実績を記録してAI提案を受ける
+            </div>
+          </div>
+          <div style="margin-top:16px;padding:10px 12px;background:rgba(255,107,91,.06);border-radius:8px;font-size:11px;color:var(--live);">
+            💡 使えば使うほどAIレポートが充実します
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="text-align:center;margin-top:48px;">
+      <a class="btn btn-primary" href="https://opsdesk.ringnote.jp/app">今すぐ無料で始める →</a>
+      <p style="font-size:12px;color:var(--dim);margin-top:12px;">クレジットカード不要 ・ いつでも解約可能</p>
     </div>
 
   </div>
