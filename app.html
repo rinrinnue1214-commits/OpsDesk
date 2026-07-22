@@ -16,6 +16,62 @@ if('serviceWorker' in navigator){
     });
   }
 }
+async function requestActivityAI(){
+  const type=document.getElementById('act-type')?.value||'配信';
+  const platform=document.getElementById('act-platform')?.value||'YouTube';
+  const title=document.getElementById('act-title')?.value||'';
+  const btn=document.getElementById('actAiBtn');
+  const resultEl=document.getElementById('actAiResult');
+  const contentEl=document.getElementById('actAiContent');
+  if(!isPaidPlan()){showToast('AI提案はスタンダード以上のプランでご利用いただけます。');return;}
+  btn.disabled=true;btn.textContent='✨ AI提案を生成中...';
+  resultEl.style.display='none';
+  try{
+    const prompt=`あなたは個人勢VTuber・配信者のマネージャーです。以下の活動情報をもとに提案をしてください。
+
+種類: ${type}
+プラットフォーム: ${platform}
+タイトル案（未定の場合は空欄）: ${title||'未定'}
+
+以下の形式でJSONのみ返してください（前後にテキスト不要）：
+{
+  "seo_words": ["ワード1","ワード2","ワード3","ワード4","ワード5"],
+  "titles": ["タイトル案1","タイトル案2","タイトル案3"],
+  "x_post": "X(Twitter)用の告知文（140字以内、ハッシュタグ含む）",
+  "discord_post": "Discord用の告知文（2〜3行）"
+}`;
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await res.json();
+    const text=data.content?.find(c=>c.type==='text')?.text||'';
+    const json=JSON.parse(text.replace(/```json|```/g,'').trim());
+    contentEl.innerHTML=`
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:4px;">🔍 SEOワード候補</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;">${json.seo_words.map(w=>`<span style="background:rgba(69,214,176,.15);color:var(--calm);border-radius:6px;padding:2px 8px;font-size:12px;cursor:pointer;" onclick="document.getElementById('act-title').value+=(document.getElementById('act-title').value?' ':'')+this.textContent">${w}</span>`).join('')}</div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:4px;">📝 タイトル候補</div>
+        ${json.titles.map(t=>`<div style="padding:6px 8px;border-radius:6px;background:rgba(255,255,255,.04);margin-bottom:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;" onclick="document.getElementById('act-title').value='${t.replace(/'/g,"\\'")}';showToast('タイトルを反映しました')"><span>${t}</span><span style="font-size:11px;color:var(--calm);">使う</span></div>`).join('')}
+      </div>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:4px;">🐦 X(Twitter)用告知文</div>
+        <div style="padding:8px;background:rgba(255,255,255,.04);border-radius:6px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(json.x_post)}</div>
+        <button class="ghost" style="font-size:11px;padding:4px 8px;margin-top:4px;" onclick="navigator.clipboard.writeText('${json.x_post.replace(/'/g,"\\'")}');showToast('コピーしました')">コピー</button>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:4px;">💬 Discord用告知文</div>
+        <div style="padding:8px;background:rgba(255,255,255,.04);border-radius:6px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(json.discord_post)}</div>
+        <button class="ghost" style="font-size:11px;padding:4px 8px;margin-top:4px;" onclick="navigator.clipboard.writeText('${json.discord_post.replace(/'/g,"\\'")}');showToast('コピーしました')">コピー</button>
+      </div>`;
+    resultEl.style.display='block';
+  }catch(e){showToast('AI提案の生成に失敗しました。もう一度お試しください。');}
+  finally{btn.disabled=false;btn.textContent='✨ AIにタイトル・告知文を提案してもらう';}
+}
+function isPaidPlan(){return currentPlan==='standard'||currentPlan==='pro';}
 async function markDiscordJoined(){
   if(!myUserId)return;
   await sb.from('profiles').upsert({id:myUserId,discord_joined:true});
@@ -1559,7 +1615,13 @@ input[type=number]{-moz-appearance:textfield;}
     <input type="text" id="act-date" readonly placeholder="日付を選択" onclick="openDatePicker('act-date')">
     <label>タイトル（任意）</label>
     <input type="text" id="act-title" placeholder="例:深夜雑談配信 #73">
+    <button class="ghost" style="width:100%;margin-bottom:8px;font-size:13px;" onclick="requestActivityAI()" id="actAiBtn">✨ AIにタイトル・告知文を提案してもらう</button>
+    <div id="actAiResult" style="display:none;background:var(--card);border-radius:12px;padding:12px;margin-bottom:12px;font-size:13px;">
+      <div style="font-weight:600;color:var(--calm);margin-bottom:8px;">💡 AI提案</div>
+      <div id="actAiContent"></div>
+    </div>
     <div class="row">
+
       <div><label>最大同接・再生数</label><input type="number" id="act-views" placeholder="例:1500" inputmode="numeric"></div>
       <div><label>コメント数（任意）</label><input type="number" id="act-comments" placeholder="例:320" inputmode="numeric"></div>
     </div>
