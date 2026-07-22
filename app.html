@@ -35,7 +35,9 @@ async function requestActivityAI(){
     });
     const data=await res.json();
     if(!res.ok){showToast(data.error||'AI提案の生成に失敗しました');return;}
-    const {seo_words,titles,x_post,discord_post,remaining}=data;
+    const {seo_words,titles,x_post,general_post,remaining}=data;
+    // 提案結果をセッション変数に保存（記録時にDBへ書き込む）
+    window._lastAiSuggestion=JSON.stringify({seo_words,titles,x_post,general_post});
     contentEl.innerHTML=`
       <div style="margin-bottom:10px;">
         <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:4px;">🔍 SEOワード候補（タップでタイトルに追加）</div>
@@ -51,9 +53,9 @@ async function requestActivityAI(){
         <button class="ghost" style="font-size:11px;padding:4px 8px;margin-top:4px;" onclick="navigator.clipboard.writeText(${JSON.stringify(x_post)});showToast('コピーしました')">コピー</button>
       </div>
       <div>
-        <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:4px;">💬 Discord用告知文</div>
-        <div style="padding:8px;background:rgba(255,255,255,.04);border-radius:6px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(discord_post)}</div>
-        <button class="ghost" style="font-size:11px;padding:4px 8px;margin-top:4px;" onclick="navigator.clipboard.writeText(${JSON.stringify(discord_post)});showToast('コピーしました')">コピー</button>
+        <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:4px;">📢 汎用告知文（Discord・ニコニコ・コメント欄など）</div>
+        <div style="padding:8px;background:rgba(255,255,255,.04);border-radius:6px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(general_post)}</div>
+        <button class="ghost" style="font-size:11px;padding:4px 8px;margin-top:4px;" onclick="navigator.clipboard.writeText(${JSON.stringify(general_post)});showToast('コピーしました')">コピー</button>
       </div>
       ${remaining!==undefined?`<div style="font-size:11px;color:var(--dim);margin-top:8px;text-align:right;">今月の残り利用回数：${remaining}回</div>`:''}`;
     resultEl.style.display='block';
@@ -1654,6 +1656,16 @@ input[type=number]{-moz-appearance:textfield;}
       <button class="ghost" style="flex:1;" onclick="closeModal('addActivityModal')">キャンセル</button>
       <button class="primary" style="flex:2;" onclick="addActivity()">記録する</button>
     </div>
+  </div>
+</div>
+
+<!-- AI提案表示モーダル -->
+<div class="modal-overlay" id="viewAiSuggestionModal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💡 AI提案</div>
+    <div id="viewAiSuggestionContent" style="font-size:13px;"></div>
+    <button class="ghost" style="width:100%;margin-top:12px;" onclick="closeModal('viewAiSuggestionModal')">閉じる</button>
   </div>
 </div>
 
@@ -3489,7 +3501,7 @@ function renderActivity(){
       ${a.earning?`<span class="act-detail-badge">💴 ¥${Number(a.earning).toLocaleString()}</span>`:''}
     </div>
   </div><span class="tag" style="color:var(--${ACT_COLOR[a.type]||'gold'});border-color:var(--${ACT_COLOR[a.type]||'gold'});">${a.type}</span></div>
-  <div class="li-acts"><button class="ghost sm" onclick="openEditActivityStats('${a.id}',${a.views||'null'},${a.comments||'null'},${a.duration||'null'},${a.earning||'null'})">📊 数字を追記</button><button class="ghost sm" onclick="deleteActivity('${a.id}')">削除</button></div></div>`).join('');
+  <div class="li-acts"><button class="ghost sm" onclick="openEditActivityStats('${a.id}',${a.views||'null'},${a.comments||'null'},${a.duration||'null'},${a.earning||'null'})">📊 数字を追記</button>${a.ai_suggestion?`<button class="ghost sm" onclick="showSavedAiSuggestion(${JSON.stringify(a.ai_suggestion)})">💡 AI提案を見る</button>`:''}<button class="ghost sm" onclick="deleteActivity('${a.id}')">削除</button></div></div>`).join('');
   if(mBtn){if(sorted.length>ACT_PAGE){mBtn.style.display='block';mBtn.textContent=activityShowAll?'表示を減らす':`もっと見る(残り${sorted.length-ACT_PAGE}件)`;}else mBtn.style.display='none';}
 }
 function toggleActivityShowAll(){activityShowAll=!activityShowAll;renderActivity();}
@@ -3540,6 +3552,7 @@ async function addActivity(){
   const title=document.getElementById('act-title').value.trim();
   if(!date){showError('日付を入力してください');return;}
   const insertData={user_id:user.id,date,type,platform,title:title||null};
+  if(window._lastAiSuggestion){insertData.ai_suggestion=window._lastAiSuggestion;window._lastAiSuggestion=null;}
   const{error}=await sb.from('activities').insert(insertData);
   if(error){
     // memoカラムがない場合はmemoなしで再試行
@@ -3561,6 +3574,32 @@ async function addActivity(){
   document.getElementById('act-type').value='配信';
   document.querySelectorAll('#actTypeChips .chip').forEach((b,i)=>b.classList.toggle('act',i===0));
   closeModal('addActivityModal');await loadEverything();renderActivity();renderHomeActivityStats();showToast('実績を記録しました');
+}
+function showSavedAiSuggestion(jsonStr){
+  const el=document.getElementById('viewAiSuggestionContent');
+  try{
+    const {seo_words,titles,x_post,general_post}=typeof jsonStr==='string'?JSON.parse(jsonStr):jsonStr;
+    el.innerHTML=`
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:4px;">🔍 SEOワード候補</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;">${(seo_words||[]).map(w=>`<span style="background:rgba(69,214,176,.15);color:var(--calm);border-radius:6px;padding:2px 8px;font-size:12px;">${escapeHtml(w)}</span>`).join('')}</div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:4px;">📝 タイトル候補</div>
+        ${(titles||[]).map(t=>`<div style="padding:6px 8px;border-radius:6px;background:rgba(255,255,255,.04);margin-bottom:4px;font-size:12px;">${escapeHtml(t)}</div>`).join('')}
+      </div>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:4px;">🐦 X(Twitter)用告知文</div>
+        <div style="padding:8px;background:rgba(255,255,255,.04);border-radius:6px;line-height:1.6;white-space:pre-wrap;font-size:12px;">${escapeHtml(x_post||'')}</div>
+        <button class="ghost" style="font-size:11px;padding:4px 8px;margin-top:4px;" onclick="navigator.clipboard.writeText(${JSON.stringify(x_post||'')});showToast('コピーしました')">コピー</button>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:4px;">📢 汎用告知文</div>
+        <div style="padding:8px;background:rgba(255,255,255,.04);border-radius:6px;line-height:1.6;white-space:pre-wrap;font-size:12px;">${escapeHtml(general_post||'')}</div>
+        <button class="ghost" style="font-size:11px;padding:4px 8px;margin-top:4px;" onclick="navigator.clipboard.writeText(${JSON.stringify(general_post||'')});showToast('コピーしました')">コピー</button>
+      </div>`;
+  }catch(e){el.innerHTML='<div class="empty">提案データを読み込めませんでした</div>';}
+  openModal('viewAiSuggestionModal');
 }
 async function deleteActivity(id){if(!confirm('この実績を削除しますか?'))return;await sb.from('activities').delete().eq('id',id);await loadEverything();renderActivity();renderHomeActivityStats();}
 function openEditActivityStats(id,views,comments,duration,earning){
