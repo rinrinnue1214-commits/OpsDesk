@@ -3501,7 +3501,7 @@ function renderActivity(){
       ${a.earning?`<span class="act-detail-badge">💴 ¥${Number(a.earning).toLocaleString()}</span>`:''}
     </div>
   </div><span class="tag" style="color:var(--${ACT_COLOR[a.type]||'gold'});border-color:var(--${ACT_COLOR[a.type]||'gold'});">${a.type}</span></div>
-  <div class="li-acts"><button class="ghost sm" onclick="openEditActivityStats('${a.id}',${a.views||'null'},${a.comments||'null'},${a.duration||'null'},${a.earning||'null'})">📊 数字を追記</button>${a.ai_suggestion?`<button class="ghost sm" onclick="showSavedAiSuggestion(${JSON.stringify(a.ai_suggestion)})">💡 AI提案を見る</button>`:''}<button class="ghost sm" onclick="deleteActivity('${a.id}')">削除</button></div></div>`).join('');
+  <div class="li-acts"><button class="ghost sm" onclick="openEditActivityStats('${a.id}',${a.views||'null'},${a.comments||'null'},${a.duration||'null'},${a.earning||'null'})">📊 数字を追記</button>${a.ai_suggestion?`<button class="ghost sm" data-ai-id="${a.id}" onclick="showSavedAiSuggestionById(this.dataset.aiId)">💡 AI提案を見る</button>`:''}<button class="ghost sm" onclick="deleteActivity('${a.id}')">削除</button></div></div>`).join('');
   if(mBtn){if(sorted.length>ACT_PAGE){mBtn.style.display='block';mBtn.textContent=activityShowAll?'表示を減らす':`もっと見る(残り${sorted.length-ACT_PAGE}件)`;}else mBtn.style.display='none';}
 }
 function toggleActivityShowAll(){activityShowAll=!activityShowAll;renderActivity();}
@@ -3574,6 +3574,11 @@ async function addActivity(){
   document.getElementById('act-type').value='配信';
   document.querySelectorAll('#actTypeChips .chip').forEach((b,i)=>b.classList.toggle('act',i===0));
   closeModal('addActivityModal');await loadEverything();renderActivity();renderHomeActivityStats();showToast('実績を記録しました');
+}
+function showSavedAiSuggestionById(id){
+  const a=activities.find(x=>x.id===id);
+  if(!a?.ai_suggestion){showToast('AI提案データが見つかりません');return;}
+  showSavedAiSuggestion(a.ai_suggestion);
 }
 function showSavedAiSuggestion(jsonStr){
   const el=document.getElementById('viewAiSuggestionContent');
