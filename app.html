@@ -23,55 +23,43 @@ async function requestActivityAI(){
   const btn=document.getElementById('actAiBtn');
   const resultEl=document.getElementById('actAiResult');
   const contentEl=document.getElementById('actAiContent');
-  if(!isPaidPlan()){showToast('AI提案はスタンダード以上のプランでご利用いただけます。');return;}
   btn.disabled=true;btn.textContent='✨ AI提案を生成中...';
   resultEl.style.display='none';
   try{
-    const prompt=`あなたは個人勢VTuber・配信者のマネージャーです。以下の活動情報をもとに提案をしてください。
-
-種類: ${type}
-プラットフォーム: ${platform}
-タイトル案（未定の場合は空欄）: ${title||'未定'}
-
-以下の形式でJSONのみ返してください（前後にテキスト不要）：
-{
-  "seo_words": ["ワード1","ワード2","ワード3","ワード4","ワード5"],
-  "titles": ["タイトル案1","タイトル案2","タイトル案3"],
-  "x_post": "X(Twitter)用の告知文（140字以内、ハッシュタグ含む）",
-  "discord_post": "Discord用の告知文（2〜3行）"
-}`;
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const session=await sb.auth.getSession();
+    const token=session.data.session?.access_token;
+    const res=await fetch(`${SUPABASE_URL}/functions/v1/generate-activity-suggestion`,{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},
+      body:JSON.stringify({type,platform,title})
     });
     const data=await res.json();
-    const text=data.content?.find(c=>c.type==='text')?.text||'';
-    const json=JSON.parse(text.replace(/```json|```/g,'').trim());
+    if(!res.ok){showToast(data.error||'AI提案の生成に失敗しました');return;}
+    const {seo_words,titles,x_post,discord_post,remaining}=data;
     contentEl.innerHTML=`
       <div style="margin-bottom:10px;">
-        <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:4px;">🔍 SEOワード候補</div>
-        <div style="display:flex;flex-wrap:wrap;gap:4px;">${json.seo_words.map(w=>`<span style="background:rgba(69,214,176,.15);color:var(--calm);border-radius:6px;padding:2px 8px;font-size:12px;cursor:pointer;" onclick="document.getElementById('act-title').value+=(document.getElementById('act-title').value?' ':'')+this.textContent">${w}</span>`).join('')}</div>
+        <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:4px;">🔍 SEOワード候補（タップでタイトルに追加）</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;">${seo_words.map(w=>`<span style="background:rgba(69,214,176,.15);color:var(--calm);border-radius:6px;padding:2px 8px;font-size:12px;cursor:pointer;" onclick="const t=document.getElementById('act-title');t.value=(t.value?t.value+' ':'')+this.textContent">${escapeHtml(w)}</span>`).join('')}</div>
       </div>
       <div style="margin-bottom:10px;">
-        <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:4px;">📝 タイトル候補</div>
-        ${json.titles.map(t=>`<div style="padding:6px 8px;border-radius:6px;background:rgba(255,255,255,.04);margin-bottom:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;" onclick="document.getElementById('act-title').value='${t.replace(/'/g,"\\'")}';showToast('タイトルを反映しました')"><span>${t}</span><span style="font-size:11px;color:var(--calm);">使う</span></div>`).join('')}
+        <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:4px;">📝 タイトル候補（タップで反映）</div>
+        ${titles.map(t=>`<div style="padding:6px 8px;border-radius:6px;background:rgba(255,255,255,.04);margin-bottom:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;" onclick="document.getElementById('act-title').value=${JSON.stringify(t)};showToast('タイトルを反映しました')"><span>${escapeHtml(t)}</span><span style="font-size:11px;color:var(--calm);white-space:nowrap;margin-left:8px;">使う</span></div>`).join('')}
       </div>
       <div style="margin-bottom:10px;">
         <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:4px;">🐦 X(Twitter)用告知文</div>
-        <div style="padding:8px;background:rgba(255,255,255,.04);border-radius:6px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(json.x_post)}</div>
-        <button class="ghost" style="font-size:11px;padding:4px 8px;margin-top:4px;" onclick="navigator.clipboard.writeText('${json.x_post.replace(/'/g,"\\'")}');showToast('コピーしました')">コピー</button>
+        <div style="padding:8px;background:rgba(255,255,255,.04);border-radius:6px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(x_post)}</div>
+        <button class="ghost" style="font-size:11px;padding:4px 8px;margin-top:4px;" onclick="navigator.clipboard.writeText(${JSON.stringify(x_post)});showToast('コピーしました')">コピー</button>
       </div>
       <div>
         <div style="font-size:11px;color:var(--dim);font-weight:600;margin-bottom:4px;">💬 Discord用告知文</div>
-        <div style="padding:8px;background:rgba(255,255,255,.04);border-radius:6px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(json.discord_post)}</div>
-        <button class="ghost" style="font-size:11px;padding:4px 8px;margin-top:4px;" onclick="navigator.clipboard.writeText('${json.discord_post.replace(/'/g,"\\'")}');showToast('コピーしました')">コピー</button>
-      </div>`;
+        <div style="padding:8px;background:rgba(255,255,255,.04);border-radius:6px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(discord_post)}</div>
+        <button class="ghost" style="font-size:11px;padding:4px 8px;margin-top:4px;" onclick="navigator.clipboard.writeText(${JSON.stringify(discord_post)});showToast('コピーしました')">コピー</button>
+      </div>
+      ${remaining!==undefined?`<div style="font-size:11px;color:var(--dim);margin-top:8px;text-align:right;">今月の残り利用回数：${remaining}回</div>`:''}`;
     resultEl.style.display='block';
   }catch(e){showToast('AI提案の生成に失敗しました。もう一度お試しください。');}
   finally{btn.disabled=false;btn.textContent='✨ AIにタイトル・告知文を提案してもらう';}
 }
-function isPaidPlan(){return currentPlan==='standard'||currentPlan==='pro';}
 async function markDiscordJoined(){
   if(!myUserId)return;
   await sb.from('profiles').upsert({id:myUserId,discord_joined:true});
@@ -1620,18 +1608,31 @@ input[type=number]{-moz-appearance:textfield;}
       <div style="font-weight:600;color:var(--calm);margin-bottom:8px;">💡 AI提案</div>
       <div id="actAiContent"></div>
     </div>
-    <div class="row">
-
-      <div><label>最大同接・再生数</label><input type="number" id="act-views" placeholder="例:1500" inputmode="numeric"></div>
-      <div><label>コメント数（任意）</label><input type="number" id="act-comments" placeholder="例:320" inputmode="numeric"></div>
-    </div>
-    <div class="row">
-      <div><label>配信時間（分・任意）</label><input type="number" id="act-duration" placeholder="例:90" inputmode="numeric"></div>
-      <div><label>収益（円・任意）</label><input type="number" id="act-earning" placeholder="例:3200" inputmode="numeric"></div>
-    </div>
     <div style="display:flex;gap:8px;">
       <button class="ghost" style="flex:1;" onclick="closeModal('addActivityModal')">キャンセル</button>
       <button class="primary" style="flex:2;" onclick="addActivity()">記録する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 実績数字追記モーダル -->
+<div class="modal-overlay" id="editActivityStatsModal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">数字を追記</div>
+    <p style="font-size:12px;color:var(--calm);margin-bottom:12px;">📊 投稿後に数字を追記しておくと、AI振り返りレポートの精度が上がり、自分の活動を振り返る際にも役立ちます。あとから入力してもOKです。</p>
+    <input type="hidden" id="edit-act-id">
+    <div class="row">
+      <div><label>最大同接・再生数</label><input type="number" id="edit-act-views" placeholder="例:1500" inputmode="numeric"></div>
+      <div><label>コメント数（任意）</label><input type="number" id="edit-act-comments" placeholder="例:320" inputmode="numeric"></div>
+    </div>
+    <div class="row">
+      <div><label>配信時間（分・任意）</label><input type="number" id="edit-act-duration" placeholder="例:90" inputmode="numeric"></div>
+      <div><label>収益（円・任意）</label><input type="number" id="edit-act-earning" placeholder="例:3200" inputmode="numeric"></div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="ghost" style="flex:1;" onclick="closeModal('editActivityStatsModal')">キャンセル</button>
+      <button class="primary" style="flex:2;" onclick="saveActivityStats()">保存する</button>
     </div>
   </div>
 </div>
@@ -3381,7 +3382,7 @@ function renderActivity(){
       ${a.earning?`<span class="act-detail-badge">💴 ¥${Number(a.earning).toLocaleString()}</span>`:''}
     </div>
   </div><span class="tag" style="color:var(--${ACT_COLOR[a.type]||'gold'});border-color:var(--${ACT_COLOR[a.type]||'gold'});">${a.type}</span></div>
-  <div class="li-acts"><button class="ghost sm" onclick="deleteActivity('${a.id}')">削除</button></div></div>`).join('');
+  <div class="li-acts"><button class="ghost sm" onclick="openEditActivityStats('${a.id}',${a.views||'null'},${a.comments||'null'},${a.duration||'null'},${a.earning||'null'})">📊 数字を追記</button><button class="ghost sm" onclick="deleteActivity('${a.id}')">削除</button></div></div>`).join('');
   if(mBtn){if(sorted.length>ACT_PAGE){mBtn.style.display='block';mBtn.textContent=activityShowAll?'表示を減らす':`もっと見る(残り${sorted.length-ACT_PAGE}件)`;}else mBtn.style.display='none';}
 }
 function toggleActivityShowAll(){activityShowAll=!activityShowAll;renderActivity();}
@@ -3430,16 +3431,8 @@ async function addActivity(){
   }
   const date=document.getElementById('act-date').value;
   const title=document.getElementById('act-title').value.trim();
-  const views=document.getElementById('act-views').value||null;
-  const comments=document.getElementById('act-comments').value||null;
-  const duration=document.getElementById('act-duration').value||null;
-  const earning=document.getElementById('act-earning').value||null;
   if(!date){showError('日付を入力してください');return;}
-  // memoカラムにJSONで追加情報を保存（カラムがない場合は省略）
-  const insertData={user_id:user.id,date,type,platform,title:title||null,views:views||null};
-  if(comments||duration||earning){
-    insertData.memo=JSON.stringify({comments,duration,earning});
-  }
+  const insertData={user_id:user.id,date,type,platform,title:title||null};
   const{error}=await sb.from('activities').insert(insertData);
   if(error){
     // memoカラムがない場合はmemoなしで再試行
@@ -3451,7 +3444,7 @@ async function addActivity(){
       showError('保存に失敗しました: '+translateError(error.message));return;
     }
   }
-  ['act-title','act-views','act-comments','act-duration','act-earning'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['act-title'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const otherPlatInp=document.getElementById('act-platform-other');
   if(otherPlatInp){otherPlatInp.value='';otherPlatInp.style.display='none';}
   document.getElementById('act-platform').value='YouTube';
@@ -3463,6 +3456,31 @@ async function addActivity(){
   closeModal('addActivityModal');await loadEverything();renderActivity();renderHomeActivityStats();showToast('実績を記録しました');
 }
 async function deleteActivity(id){if(!confirm('この実績を削除しますか?'))return;await sb.from('activities').delete().eq('id',id);await loadEverything();renderActivity();renderHomeActivityStats();}
+function openEditActivityStats(id,views,comments,duration,earning){
+  document.getElementById('edit-act-id').value=id;
+  document.getElementById('edit-act-views').value=views||'';
+  document.getElementById('edit-act-comments').value=comments||'';
+  document.getElementById('edit-act-duration').value=duration||'';
+  document.getElementById('edit-act-earning').value=earning||'';
+  openModal('editActivityStatsModal');
+}
+async function saveActivityStats(){
+  const id=document.getElementById('edit-act-id').value;
+  const views=document.getElementById('edit-act-views').value||null;
+  const comments=document.getElementById('edit-act-comments').value||null;
+  const duration=document.getElementById('edit-act-duration').value||null;
+  const earning=document.getElementById('edit-act-earning').value||null;
+  if(!id)return;
+  const updateData={views:views?Number(views):null};
+  if(comments||duration||earning){
+    updateData.memo=JSON.stringify({comments,duration,earning});
+  }
+  const{error}=await sb.from('activities').update(updateData).eq('id',id);
+  if(error){showError('保存に失敗しました');return;}
+  closeModal('editActivityStatsModal');
+  await loadEverything();renderActivity();renderHomeActivityStats();
+  showToast('数字を追記しました📊');
+}
 
 // ── DEALS ──
 const DEAL_SC={提案中:'blue',交渉中:'gold',実施済み:'calm',入金済み:'green',見送り:'dim'};
