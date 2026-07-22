@@ -2635,7 +2635,7 @@ async function loadEverything(){
   deals=dealRows.map(r=>({id:r.id,company:r.company,contact:r.contact,contactInfo:r.contact_info,status:r.status,amount:r.amount,memo:r.memo,deadline:r.deadline,createdAt:new Date(r.created_at).getTime()}));
   activities=actRows.map(r=>{
     let extra={};try{extra=JSON.parse(r.memo||'{}');}catch(e){}
-    return{id:r.id,date:r.date,type:r.type,platform:r.platform,title:r.title,views:r.views,comments:extra.comments||null,duration:extra.duration||null,earning:extra.earning||null,createdAt:new Date(r.created_at).getTime()};
+    return{id:r.id,date:r.date,type:r.type,platform:r.platform,title:r.title,views:r.views,comments:extra.comments||null,duration:extra.duration||null,earning:extra.earning||null,ai_suggestion:r.ai_suggestion||null,createdAt:new Date(r.created_at).getTime()};
   });
   collabPartners=partnerRows.map(r=>({id:r.id,name:r.name,platform:r.platform,contact:r.contact,date:r.collab_date,memo:r.memo,createdAt:new Date(r.created_at).getTime()}));
   teamMembers=memberRows.map(r=>({id:r.id,email:r.invited_email,role:r.role,status:r.status}));
