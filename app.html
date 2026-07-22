@@ -71,6 +71,20 @@ async function checkDiscordBanner(){
   const{data}=await sb.from('profiles').select('discord_joined').eq('id',myUserId).single();
   if(data?.discord_joined)document.getElementById('discordBanner').style.display='none';
 }
+function checkTrialBanner(){
+  const banner=document.getElementById('trialBanner');
+  const daysEl=document.getElementById('trialBannerDays');
+  if(!banner)return;
+  // profileRowのtrial_started_atは既にloadSettingsで取得済みのためcurrentPlanで判定
+  if(currentPlan==='standard'&&document.getElementById('planBadge')?.textContent?.includes('トライアル')){
+    const text=document.getElementById('planBadge').textContent;
+    const match=text.match(/残(\d+)日/);
+    if(match&&daysEl)daysEl.textContent=`残り${match[1]}日間、スタンダードプランの全機能をお試しいただけます。`;
+    banner.style.display='block';
+  }else{
+    banner.style.display='none';
+  }
+}
 </script>
 <meta name="google" content="notranslate">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -545,6 +559,17 @@ input[type=number]{-moz-appearance:textfield;}
       <input type="checkbox" id="auth-tos" style="width:auto;margin:3px 0 0;accent-color:var(--calm);">
       <label for="auth-tos" style="margin:0;font-size:12px;color:var(--dim);"><span class="link-btn" onclick="event.preventDefault();openModal('tosModal')">利用規約・プライバシーポリシー</span>に同意します</label>
     </div>
+    <div id="trialRow" style="display:none;margin:0 0 14px;">
+      <div style="background:linear-gradient(135deg,rgba(69,214,176,.15),rgba(69,214,176,.05));border:1px solid rgba(69,214,176,.3);border-radius:10px;padding:12px;">
+        <div style="font-weight:700;color:var(--calm);font-size:13px;margin-bottom:6px;">🎁 30日間無料トライアル</div>
+        <div style="font-size:12px;color:var(--dim);margin-bottom:10px;">スタンダードプランの全機能を30日間無料でお試しいただけます。クレジットカード不要。</div>
+        <div style="display:flex;gap:8px;">
+          <button type="button" id="trialYesBtn" onclick="selectTrial(true)" style="flex:1;padding:8px;border-radius:8px;border:2px solid var(--calm);background:var(--calm);color:#12131A;font-weight:700;font-size:12px;cursor:pointer;">試してみる</button>
+          <button type="button" id="trialNoBtn" onclick="selectTrial(false)" style="flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--dim);font-size:12px;cursor:pointer;">無料プランで始める</button>
+        </div>
+      </div>
+    </div>
+    <input type="hidden" id="auth-trial" value="false">
     <button class="primary full" id="authSubmitBtn" onclick="submitAuth()">ログイン</button>
     <p style="text-align:center;margin-top:12px;font-size:12px;"><span class="link-btn" onclick="showResetRequest()">パスワードをお忘れですか?</span></p>
   </div>
@@ -707,6 +732,16 @@ input[type=number]{-moz-appearance:textfield;}
       <button class="primary full" onclick="generateReport()" id="reportBtn">レポートを生成する</button>
       <div id="reportResult" style="margin-top:12px;"></div>
     </div>
+  </div>
+</div>
+<div class="card" id="trialBanner" style="display:none;background:linear-gradient(135deg,rgba(69,214,176,.2) 0%,rgba(69,214,176,.05) 100%);border:1px solid rgba(69,214,176,.3);">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div style="font-size:24px;">🎁</div>
+    <div style="flex:1;">
+      <div style="font-weight:700;color:var(--calm);font-size:14px;">スタンダードプラン トライアル中</div>
+      <div style="color:var(--dim);font-size:12px;margin-top:2px;" id="trialBannerDays">残り30日間、全機能をお試しいただけます。</div>
+    </div>
+    <a href="#" onclick="event.preventDefault();openModal('upgradeModal')" style="background:var(--calm);color:#12131A;font-weight:700;font-size:12px;padding:7px 12px;border-radius:8px;text-decoration:none;white-space:nowrap;">プランを見る</a>
   </div>
 </div>
 <div class="card" id="discordBanner" style="background:linear-gradient(135deg,#5865F2 0%,#7289DA 100%);border:none;">
@@ -1087,10 +1122,13 @@ input[type=number]{-moz-appearance:textfield;}
         <tr><td>収支管理</td><td class="no">—</td><td class="yes">直近3ヶ月</td><td class="yes">無制限</td></tr>
         <tr><td>CSVエクスポート</td><td class="no">—</td><td class="yes">○</td><td class="yes">○</td></tr>
         <tr><td>AIレポート</td><td class="no">—</td><td class="yes">月10回</td><td class="yes">月20回</td></tr>
+        <tr><td>AIタイトル・告知文提案</td><td class="no">—</td><td class="yes">○</td><td class="yes">○</td></tr>
         <tr><td>案件管理CRM</td><td class="no">—</td><td class="no">—</td><td class="yes">○</td></tr>
         <tr><td>コラボ相手の管理</td><td class="no">—</td><td class="no">—</td><td class="yes">○</td></tr>
         <tr><td>グループ機能</td><td class="no">—</td><td class="no">—</td><td class="yes">○</td></tr>
         <tr><td>チーム機能</td><td class="no">—</td><td class="no">—</td><td class="yes">○</td></tr>
+        <tr><td>JSONバックアップ</td><td class="no">—</td><td class="no">—</td><td class="yes">○</td></tr>
+        <tr><td>YouTube連携</td><td class="no">—</td><td class="no">—</td><td class="yes">○</td></tr>
       </table>
     </div>
   </div>
@@ -1160,7 +1198,11 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="coll-body closed" id="dataBody">
       <div style="display:flex;flex-direction:column;gap:8px;">
         <button class="ghost" onclick="exportRevenueCSV()">確定申告用CSVを出力</button>
-        <button class="ghost" onclick="exportAllCSV()">全データをバックアップ</button>
+        <button class="ghost" onclick="exportAllCSV()">全データをバックアップ（CSV）</button>
+        <div class="gated" id="jsonBackupGated">
+          <button class="ghost" onclick="exportAllJSON()" style="width:100%;border-color:var(--calm);color:var(--calm);">🔒 全データをJSONバックアップ（プロ）</button>
+          <p class="hint" style="margin:4px 0 0;">スケジュール・収支・タスク・実績・案件・ネタ帳など全データを1ファイルで保存できます。</p>
+        </div>
       </div>
       <div class="gated" id="csvImportGated" style="margin-top:10px;">
         <div>
@@ -2325,6 +2367,15 @@ function switchAuthTab(mode){
   document.getElementById('authSubmitBtn').textContent=mode==='signin'?'ログイン':'新規登録する';
   document.getElementById('authMsg').textContent='';
   document.getElementById('tosRow').style.display=mode==='signup'?'flex':'none';
+  document.getElementById('trialRow').style.display=mode==='signup'?'block':'none';
+  if(mode==='signup')selectTrial(true);
+}
+function selectTrial(val){
+  document.getElementById('auth-trial').value=val?'true':'false';
+  document.getElementById('trialYesBtn').style.background=val?'var(--calm)':'transparent';
+  document.getElementById('trialYesBtn').style.color=val?'#12131A':'var(--dim)';
+  document.getElementById('trialNoBtn').style.background=val?'transparent':'rgba(255,255,255,.08)';
+  document.getElementById('trialNoBtn').style.color=val?'var(--dim)':'var(--text)';
 }
 function pwStrengthInfo(pw){
   if(!pw)return{level:0,label:''};
@@ -2346,6 +2397,10 @@ async function submitAuth(){
     const{data,error}=await sb.auth.signUp({email,password});
     if(error){msgEl.textContent=translateError(error.message);return;}
     if(data?.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0){msgEl.textContent='このメールアドレスは既に登録されています。';return;}
+    // トライアル選択があればprofilesにtrial_started_atをセット
+    if(data?.user&&document.getElementById('auth-trial')?.value==='true'){
+      await sb.from('profiles').upsert({id:data.user.id,trial_started_at:new Date().toISOString()});
+    }
     msgEl.className='auth-msg ok';msgEl.textContent='登録しました。確認メールのリンクを開いてからログインしてください。';
   }else{
     const{error}=await sb.auth.signInWithPassword({email,password});
@@ -2584,7 +2639,23 @@ async function loadEverything(){
   const{data:{user}}=await sb.auth.getUser();
   const{data:subRow,error:subErr}=await sb.from('subscriptions').select('*').eq('user_id',user.id).single();
   if(subErr)console.warn('subscriptions fetch error:',subErr.message);
-  currentPlan=subRow?.plan??'free';applyPlanGating();
+  // トライアル判定：trial_started_atから30日以内ならstandard相当
+  const trialStart=profileRow?.trial_started_at;
+  const isTrialing=trialStart&&(new Date()-new Date(trialStart))<30*24*60*60*1000;
+  if(subRow?.plan&&subRow.plan!=='free'){
+    currentPlan=subRow.plan;
+  }else if(isTrialing){
+    currentPlan='standard';
+    // トライアル残日数をバッジに表示
+    const daysLeft=Math.ceil((30*24*60*60*1000-(new Date()-new Date(trialStart)))/(24*60*60*1000));
+    setTimeout(()=>{
+      const badge=document.getElementById('planBadge');
+      if(badge)badge.textContent=`トライアル中（残${daysLeft}日）`;
+    },100);
+  }else{
+    currentPlan='free';
+  }
+  applyPlanGating();
   const platH=[...new Set(schedule.map(s=>s.platform).filter(Boolean))];
   document.getElementById('platformHistoryList').innerHTML=platH.map(p=>`<option value="${escapeHtml(p)}">`).join('');
   const revPlatH=[...new Set(revenue.map(r=>r.platform).filter(Boolean))];
@@ -2601,6 +2672,7 @@ function applyPlanGating(){
   setGate('revenueGated',isPaid,'収支管理はスタンダード以上のプランでご利用いただけます。');
   setGate('reportGated',isPaid,'AIレポートはスタンダード以上のプランでご利用いただけます。');
   setGate('csvImportGated',isPro,'CSV取込はプロプランでご利用いただけます。');
+  setGate('jsonBackupGated',isPro,'JSONバックアップはプロプランでご利用いただけます。');
   setGate('collabShareGated',isPaid,'コラボ調整リンクはスタンダード以上のプランでご利用いただけます。');
   setGate('collabHistoryGated',isPro,'コラボ相手の管理はプロプランでご利用いただけます。');
   setGate('dealsGated',isPro,'案件管理はプロプランでご利用いただけます。');
@@ -3022,6 +3094,41 @@ function exportRevenueCSV(){
   downloadCSV(rows.map(row=>row.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n'),`opsdesk_kakutei_shinkoku_${label}.csv`);
 }
 function exportAllCSV(){let csv='【配信予定】\n日付,時間,プラットフォーム,タイトル\n';schedule.forEach(s=>csv+=`"${s.date}","${s.time||''}","${s.platform||''}","${String(s.title).replace(/"/g,'""')}"\n`);csv+='\n【収支】\n日付,区分,プラットフォーム/支払先,種別,金額\n';revenue.forEach(r=>csv+=`"${r.date}","${r.type||'収入'}","${r.platform||''}","${r.category}","${r.amount}"\n`);downloadCSV(csv,'opsdesk_all_data.csv');}
+async function exportAllJSON(){
+  const isPro=currentPlan==='pro';
+  if(!isPro){showError('JSONバックアップはプロプランでご利用いただけます');return;}
+  showToast('バックアップを準備中...');
+  try{
+    const[{data:tasks},{data:ideas},{data:deals},{data:collabs},{data:checklist}]=await Promise.all([
+      sb.from('tasks').select('*').eq('user_id',myUserId),
+      sb.from('ideas').select('*').eq('user_id',myUserId),
+      sb.from('deals').select('*').eq('user_id',myUserId),
+      sb.from('collabs').select('*').eq('user_id',myUserId),
+      sb.from('checklist_items').select('*').eq('user_id',myUserId),
+    ]);
+    const backup={
+      exported_at:new Date().toISOString(),
+      version:'1.0',
+      data:{
+        schedule,
+        revenue,
+        activities,
+        tasks:tasks||[],
+        ideas:ideas||[],
+        deals:deals||[],
+        collabs:collabs||[],
+        checklist:checklist||[],
+      }
+    };
+    const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=`opsdesk_backup_${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+    showToast('バックアップが完了しました✅');
+  }catch(e){showError('バックアップに失敗しました');console.error(e);}
+}
 function downloadCsvTemplate(){downloadCSV('日付,金額,内容\n2026-06-01,5000,配信用マイク購入\n','opsdesk_expense_template.csv');}
 function parseCsvLine(line){const result=[];let cur='',inQ=false;for(let i=0;i<line.length;i++){const c=line[i];if(inQ){if(c==='"'){if(line[i+1]==='"'){cur+='"';i++;}else inQ=false;}else cur+=c;}else{if(c==='"')inQ=true;else if(c===','){result.push(cur);cur='';}else cur+=c;}}result.push(cur);return result;}
 function normalizeDateStr(s){s=(s||'').trim();const m=s.match(/^(\d{4})[-\/年](\d{1,2})[-\/月](\d{1,2})日?$/);if(m)return`${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;return null;}
@@ -5226,6 +5333,7 @@ async function init(){
   renderProgress();renderEvents();renderChecklist();renderScripts();renderProjects();
   checkFirstVisit();
   checkDiscordBanner();
+  checkTrialBanner();
   checkTodayScheduleNotification();
   setInterval(updateStatus,60000);
 }
