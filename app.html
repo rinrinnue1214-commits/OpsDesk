@@ -2625,7 +2625,7 @@ async function fetchAll(table){const{data,error}=await sb.from(table).select('*'
 async function loadEverything(){
   const[schRows,revRows,ideaRows,taskRows,dealRows,actRows,partnerRows,memberRows]=await Promise.all([
     fetchAll('schedule_items'),fetchAll('revenue_items'),fetchAll('ideas'),fetchAll('tasks'),
-    fetchAll('deals').catch(()=>[]),fetchAll('activities').catch(()=>[]),
+    fetchAll('deals').catch(()=>[]),sb.from('activities').select('id,user_id,date,type,platform,title,views,memo,created_at,ai_suggestion').then(r=>r.data||[]).catch(()=>[]),
     fetchAll('collab_partners').catch(()=>[]),fetchAll('team_members').catch(()=>[])
   ]);
   schedule=schRows.map(r=>({id:r.id,date:r.date,time:r.time,timeEnd:r.time_end,platform:r.platform,title:r.title,type:r.type,done:r.done,googleEventId:r.google_event_id,note:r.note||''}));
